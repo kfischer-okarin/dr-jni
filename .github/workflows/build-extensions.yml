@@ -38,7 +38,7 @@ jobs:
           fi
       - name: Build Extension
         run: |
-          ./dr-android-tools/build-cext jni.c dr-jni
+          ./dr-android-tools/build-cext dr-jni/jni.c dr-jni
           mkdir -p dist
           mv dr-jni/native dist/
       - uses: actions/upload-artifact@v4
