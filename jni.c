@@ -36,6 +36,12 @@ static void drb_log_writef(const char *format, ...) {
 
 // ----- JNI Reference Data Type -----
 
+static const jstring java_object_to_string(jobject object) {
+  jclass class = (*jni_env)->GetObjectClass(jni_env, object);
+  jmethodID to_string_method = (*jni_env)->GetMethodID(jni_env, class, "toString", "()Ljava/lang/String;");
+  return (*jni_env)->CallObjectMethod(jni_env, object, to_string_method);
+}
+
 static void jni_reference_free(mrb_state *mrb, void *ptr) {
   (*jni_env)->DeleteGlobalRef(jni_env, ptr);
 }
@@ -47,12 +53,17 @@ static const mrb_data_type jni_reference_data_type = {
 
 static mrb_value wrap_jni_reference_in_object(mrb_state *mrb,
                                               jobject reference,
-                                              const char *type_name,
-                                              mrb_value qualifier) {
+                                              const char *type_name) {
   jobject global_reference = (*jni_env)->NewGlobalRef(jni_env, reference);
   struct RData *data = drb->mrb_data_object_alloc(mrb, refs.jni_reference, global_reference, &jni_reference_data_type);
   mrb_value result = drb->mrb_obj_value(data);
   drb->mrb_iv_set(mrb, result, drb->mrb_intern_lit(mrb, "@type_name"), drb->mrb_str_new_cstr(mrb, type_name));
+
+  jstring reference_as_string = java_object_to_string(reference);
+  const char *qualifier_cstr = (*jni_env)->GetStringUTFChars(jni_env, reference_as_string, NULL);
+  mrb_value qualifier = drb->mrb_str_new_cstr(mrb, qualifier_cstr);
+  (*jni_env)->ReleaseStringUTFChars(jni_env, reference_as_string, qualifier_cstr);
+
   drb->mrb_iv_set(mrb, result, drb->mrb_intern_lit(mrb, "@qualifier"), qualifier);
   return result;
 }
@@ -118,13 +129,6 @@ static void handle_jni_exception(mrb_state *mrb) {
   drb->mrb_exc_raise(mrb, drb->mrb_exc_new_str(mrb, exception_class, exception_message));
 }
 
-static const char *java_object_to_string(jobject object) {
-  jclass class = (*jni_env)->GetObjectClass(jni_env, object);
-  jmethodID to_string_method = (*jni_env)->GetMethodID(jni_env, class, "toString", "()Ljava/lang/String;");
-  jstring string = (jstring)(*jni_env)->CallObjectMethod(jni_env, object, to_string_method);
-  return (char *)(*jni_env)->GetStringUTFChars(jni_env, string, NULL);
-}
-
 // ----- JNI Methods -----
 
 static mrb_value jni_find_class_m(mrb_state *mrb, mrb_value self) {
@@ -134,10 +138,7 @@ static mrb_value jni_find_class_m(mrb_state *mrb, mrb_value self) {
   jclass class = (*jni_env)->FindClass(jni_env, class_name);
   handle_jni_exception(mrb);
 
-  return wrap_jni_reference_in_object(mrb,
-                                      class,
-                                      "jclass",
-                                      drb->mrb_str_new_cstr(mrb, java_object_to_string(class)));
+  return wrap_jni_reference_in_object(mrb, class, "jclass");
 }
 
 static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
@@ -166,10 +167,7 @@ static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
   jclass class = (*jni_env)->GetObjectClass(jni_env, object);
   handle_jni_exception(mrb);
 
-  return wrap_jni_reference_in_object(mrb,
-                                      class,
-                                      "jclass",
-                                      drb->mrb_str_new_cstr(mrb, java_object_to_string(class)));
+  return wrap_jni_reference_in_object(mrb, class, "jclass");
 }
 
 static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb_int argc) {
@@ -217,10 +215,7 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
 
   CALL_STATIC_METHOD_CLEANUP();
 
-  return wrap_jni_reference_in_object(mrb,
-                                      jni_result,
-                                      "jobject",
-                                      drb->mrb_str_new_cstr(mrb, java_object_to_string(jni_result)));
+  return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
 }
 
 // ----- JNI Methods END -----
@@ -255,8 +250,5 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_iv_set(mrb,
                   drb->mrb_obj_value(refs.jni),
                   drb->mrb_intern_lit(mrb, "@game_activity_reference"),
-                  wrap_jni_reference_in_object(mrb,
-                                               activity,
-                                               "jobject",
-                                               drb->mrb_str_new_cstr(mrb, java_object_to_string(activity))));
+                  wrap_jni_reference_in_object(mrb, activity, "jobject"));
 }
