@@ -42,6 +42,13 @@ static const jstring java_object_to_string(jobject object) {
   return (*jni_env)->CallObjectMethod(jni_env, object, to_string_method);
 }
 
+static mrb_value jstring_to_mrb_string(mrb_state *mrb, jstring jstring) {
+  const char *cstr = (*jni_env)->GetStringUTFChars(jni_env, jstring, NULL);
+  mrb_value result = drb->mrb_str_new_cstr(mrb, cstr);
+  (*jni_env)->ReleaseStringUTFChars(jni_env, jstring, cstr);
+  return result;
+}
+
 static void jni_reference_free(mrb_state *mrb, void *ptr) {
   (*jni_env)->DeleteGlobalRef(jni_env, ptr);
 }
@@ -59,12 +66,8 @@ static mrb_value wrap_jni_reference_in_object(mrb_state *mrb,
   mrb_value result = drb->mrb_obj_value(data);
   drb->mrb_iv_set(mrb, result, drb->mrb_intern_lit(mrb, "@type_name"), drb->mrb_str_new_cstr(mrb, type_name));
 
-  jstring reference_as_string = java_object_to_string(reference);
-  const char *qualifier_cstr = (*jni_env)->GetStringUTFChars(jni_env, reference_as_string, NULL);
-  mrb_value qualifier = drb->mrb_str_new_cstr(mrb, qualifier_cstr);
-  (*jni_env)->ReleaseStringUTFChars(jni_env, reference_as_string, qualifier_cstr);
-
-  drb->mrb_iv_set(mrb, result, drb->mrb_intern_lit(mrb, "@qualifier"), qualifier);
+  jstring qualifier = java_object_to_string(reference);
+  drb->mrb_iv_set(mrb, result, drb->mrb_intern_lit(mrb, "@qualifier"), jstring_to_mrb_string(mrb, qualifier));
   return result;
 }
 
@@ -114,9 +117,7 @@ static void handle_jni_exception(mrb_state *mrb) {
   (*jni_env)->ExceptionClear(jni_env);
 
   jstring message = get_exception_message(exception);
-  const char *message_cstr = (*jni_env)->GetStringUTFChars(jni_env, message, NULL);
-  mrb_value exception_message = drb->mrb_str_new_cstr(mrb, message_cstr);
-  (*jni_env)->ReleaseStringUTFChars(jni_env, message, message_cstr);
+  mrb_value exception_message = jstring_to_mrb_string(mrb, message);
 
   struct RClass *exception_class = refs.jni_exception;
 
