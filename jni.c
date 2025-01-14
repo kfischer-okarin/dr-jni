@@ -89,11 +89,10 @@ static bool java_object_is_instance_of(jobject object, const char *class_name) {
   return (*jni_env)->IsInstanceOf(jni_env, object, class);
 }
 
-static const char *get_exception_message(jthrowable exception) {
+static jstring get_exception_message(jthrowable exception) {
   jclass exception_class = (*jni_env)->GetObjectClass(jni_env, exception);
   jmethodID get_message_method = (*jni_env)->GetMethodID(jni_env, exception_class, "getMessage", "()Ljava/lang/String;");
-  jstring message = (jstring)(*jni_env)->CallObjectMethod(jni_env, exception, get_message_method);
-  return (char *)(*jni_env)->GetStringUTFChars(jni_env, message, NULL);
+  return (*jni_env)->CallObjectMethod(jni_env, exception, get_message_method);
 }
 
 static void handle_jni_exception(mrb_state *mrb) {
@@ -103,7 +102,11 @@ static void handle_jni_exception(mrb_state *mrb) {
   }
   (*jni_env)->ExceptionClear(jni_env);
 
-  const char *message = get_exception_message(exception);
+  jstring message = get_exception_message(exception);
+  const char *message_cstr = (*jni_env)->GetStringUTFChars(jni_env, message, NULL);
+  mrb_value exception_message = drb->mrb_str_new_cstr(mrb, message_cstr);
+  (*jni_env)->ReleaseStringUTFChars(jni_env, message, message_cstr);
+
   struct RClass *exception_class = refs.jni_exception;
 
   if (java_object_is_instance_of(exception, "java/lang/ClassNotFoundException")) {
@@ -112,7 +115,7 @@ static void handle_jni_exception(mrb_state *mrb) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "NoSuchMethod");
   }
 
-  drb->mrb_raise(mrb, exception_class, message);
+  drb->mrb_exc_raise(mrb, drb->mrb_exc_new_str(mrb, exception_class, exception_message));
 }
 
 static const char *java_object_to_string(jobject object) {
