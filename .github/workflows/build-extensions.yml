@@ -1,0 +1,47 @@
+name: Build Extensions
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: dr-jni
+      - uses: kfischer-okarin/download-dragonruby@v1
+        with:
+          version: '6.14'
+          license_tier: pro
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '21.0.5'
+      - uses: actions/checkout@v4
+        with:
+          repository: kfischer-okarin/dr-android-tools
+          path: dr-android-tools
+      - name: Cache Android Build Environment
+        uses: actions/cache@v4
+        with:
+          path: ./android
+          key: ${{ runner.os }}-build-tools-${{ hashFiles('scripts/setup-build-environment') }}
+      - name: Install Android Build Environment
+        run: |
+          if [ ! -d android ]; then
+            ./dr-android-tools/setup-basic-environment
+            ./dr-android-tools/setup-cext-environment
+          fi
+      - name: Build Extension
+        run: |
+          ./dr-android-tools/build-cext jni.c dr-jni
+          mkdir -p dist
+          mv dr-jni/native dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ext
+          path: dist/
