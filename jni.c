@@ -91,11 +91,10 @@ static void *unwrap_jni_pointer_from_object(mrb_state *mrb, mrb_value object) {
 
 // ----- JNI Pointer Data Type END -----
 
-static char *get_java_class_name(jclass class) {
+static jstring get_java_class_name(jclass class) {
   jclass class_class = (*jni_env)->FindClass(jni_env, "java/lang/Class");
   jmethodID get_name_method = (*jni_env)->GetMethodID(jni_env, class_class, "getName", "()Ljava/lang/String;");
-  jstring name = (jstring)(*jni_env)->CallObjectMethod(jni_env, class, get_name_method);
-  return (char *)(*jni_env)->GetStringUTFChars(jni_env, name, NULL);
+  return (*jni_env)->CallObjectMethod(jni_env, class, get_name_method);
 }
 
 static bool java_object_is_instance_of(jobject object, const char *class_name) {
