@@ -61,8 +61,16 @@ module JNI
       method_name = JNI.snake_case_to_camel_case(name)
       signature = JNI.method_signature(argument_types, return_type)
       method_id = @ffi.get_static_method_id(@reference, method_name, signature)
-      define_singleton_method name do |*args|
-        @ffi.call_static_boolean_method(@reference, method_id, *args)
+
+      case return_type
+      when :boolean
+        define_singleton_method name do |*args|
+          @ffi.call_static_boolean_method(@reference, method_id, *args)
+        end
+      when :string
+        define_singleton_method name do |*args|
+          @ffi.call_static_object_method(@reference, method_id, *args)
+        end
       end
     end
 

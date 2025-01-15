@@ -34,7 +34,7 @@ module JNI
   end
 
   describe JavaClass do
-    it 'can register a static method' do
+    it 'can register a static boolean method' do
       ffi = a_mock {
         responding_to(:get_static_method_id) {
           always_returning(1234)
@@ -54,6 +54,28 @@ module JNI
 
       assert.received_call! ffi, :call_static_boolean_method, [class_reference, 1234, 1, true]
       assert.equal! result, true
+    end
+
+    it 'can register a static string method' do
+      ffi = a_mock {
+        responding_to(:get_static_method_id) {
+          always_returning(1234)
+        }
+        responding_to(:call_static_object_method) {
+          always_returning('Hello, World!')
+        }
+      }
+      class_reference = { qualifier: 'class com.example.MyClass' }
+      java_class = JavaClass.new(class_reference, ffi: ffi)
+
+      java_class.register_static_method(:my_method, argument_types: %i[int], return_type: :string)
+
+      assert.received_call! ffi, :get_static_method_id, [class_reference, 'myMethod', '(I)Ljava/lang/String;']
+
+      result = java_class.my_method(1)
+
+      assert.received_call! ffi, :call_static_object_method, [class_reference, 1234, 1]
+      assert.equal! result, 'Hello, World!'
     end
   end
 end
