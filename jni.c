@@ -175,8 +175,10 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
   for (int i = 0; i < argc; i++) {
     if (mrb_integer_p(args[i])) {
       jni_args[i].i = mrb_integer(args[i]);
+    } else if (mrb_string_p(args[i])) {
+      jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     } else {
-      drb->mrb_raise(mrb, refs.jni_exception, "Only Fixnum arguments are supported");
+      drb->mrb_raise(mrb, refs.jni_exception, "Only String and Fixnum arguments are supported");
     }
   }
   return jni_args;
@@ -214,6 +216,10 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
   jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, class, method_id, jni_args);
 
   CALL_STATIC_METHOD_CLEANUP();
+
+  if (java_object_is_instance_of(jni_result, "java/lang/String")) {
+    return jstring_to_mrb_string(mrb, (jstring) jni_result);
+  }
 
   return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
 }
