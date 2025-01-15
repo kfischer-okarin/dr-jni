@@ -36,4 +36,4 @@ module JNI
   end
 end
 
-GTK.dlopen('jni')
+GTK.dlopen('jni') if $gtk.platform? :android
