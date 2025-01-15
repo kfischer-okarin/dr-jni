@@ -4,7 +4,8 @@ describe JNI do
   describe 'can calculate a method signature' do
     [
       [[], :void, '()V'],
-      [%i[int boolean], :boolean, '(IZ)Z']
+      [%i[int boolean], :boolean, '(IZ)Z'],
+      [%i[string], :string, '(Ljava/lang/String;)Ljava/lang/String;']
     ].each do |argument_types, return_type, expected|
       it "for #{argument_types} -> #{return_type}" do
         result = JNI.method_signature(argument_types, return_type)

@@ -28,6 +28,7 @@ module JNI
   TYPE_SIGNATURES = {
     boolean: 'Z',
     int: 'I',
+    string: 'Ljava/lang/String;',
     void: 'V'
   }
 
