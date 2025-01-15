@@ -178,6 +178,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
     } else if (mrb_string_p(args[i])) {
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     } else {
+      drb->mrb_free(mrb, jni_args);
       drb->mrb_raise(mrb, refs.jni_exception, "Only String and Fixnum arguments are supported");
     }
   }
