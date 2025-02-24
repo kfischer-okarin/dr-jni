@@ -159,6 +159,24 @@ static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
   return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
 }
 
+static mrb_value jni_get_method_id_m(mrb_state *mrb, mrb_value self) {
+  mrb_value class_reference;
+  const char *method_name;
+  const char *method_signature;
+  drb->mrb_get_args(mrb, "ozz", &class_reference, &method_name, &method_signature);
+
+  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
+  jmethodID method_id = (*jni_env)->GetMethodID(jni_env, class, method_name, method_signature);
+  handle_jni_exception(mrb);
+
+  mrb_value qualifier = drb->mrb_iv_get(mrb, class_reference, drb->mrb_intern_lit(mrb, "@qualifier"));
+  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, " ");
+  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_name);
+  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_signature);
+
+  return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
+}
+
 static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
   mrb_value object_reference;
   drb->mrb_get_args(mrb, "o", &object_reference);
@@ -242,6 +260,7 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "find_class", jni_find_class_m, MRB_ARGS_REQ(1));
   drb->mrb_define_class_method(mrb, refs.jni, "get_object_class", jni_get_object_class_m, MRB_ARGS_REQ(1));
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb,
                                refs.jni,
                                "call_static_boolean_method",

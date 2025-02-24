@@ -5,6 +5,7 @@ module JNI
 
       # def find_class(name) -> Reference
       # def get_static_method_id(class_reference, name, signature)
+      # def get_method_id(object_reference, name, signature)
       # def get_object_class(object_reference) -> Reference
       # def call_static_boolean_method(class_reference, method_id, *args) -> Boolean
       # def call_static_object_method(class_reference, method_id, *args) -> Reference
