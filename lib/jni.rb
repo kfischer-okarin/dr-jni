@@ -55,6 +55,21 @@ module JNI
     def initialize(reference, ffi: FFI)
       @reference = reference
       @ffi = ffi
+      @constructor_by_argument_count = {}
+    end
+
+    def build_new_instance(*args)
+      method_id = @constructor_by_argument_count[args.size]
+      raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless method_id
+
+      reference = @ffi.new_object(@reference, method_id, *args)
+      JavaObject.new(reference, ffi: @ffi)
+    end
+
+    def register_constructor(argument_types: [])
+      signature = JNI.method_signature(argument_types, :void)
+      method_id = @ffi.get_method_id(@reference, '<init>', signature)
+      @constructor_by_argument_count[argument_types.size] = method_id
     end
 
     def register_static_method(name, argument_types: [], return_type: :void)

@@ -34,6 +34,27 @@ module JNI
   end
 
   describe JavaClass do
+    it 'can build a new instance' do
+      ffi = a_mock {
+        responding_to(:get_method_id) {
+          always_returning(1234)
+        }
+        responding_to(:new_object) {
+          always_returning({ qualifier: 'com.example.MyClass' })
+        }
+      }
+
+      class_reference = { qualifier: 'class com.example.MyClass' }
+      java_class = JavaClass.new(class_reference, ffi: ffi)
+
+      java_class.register_constructor(argument_types: %i[])
+      assert.received_call! ffi, :get_method_id, [class_reference, '<init>', '()V']
+
+      instance = java_class.build_new_instance
+      assert.received_call! ffi, :new_object, [class_reference, 1234]
+      assert.equal! instance.class, JavaObject
+    end
+
     it 'can register a static boolean method' do
       ffi = a_mock {
         responding_to(:get_static_method_id) {
