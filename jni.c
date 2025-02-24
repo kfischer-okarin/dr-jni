@@ -243,6 +243,26 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
   return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
 }
 
+static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
+  mrb_value class_reference;
+  mrb_value method_id_reference;
+  mrb_value *args;
+  mrb_int argc;
+  drb->mrb_get_args(mrb, "oo*", &class_reference, &method_id_reference, &args, &argc);
+
+  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
+  jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);
+
+  jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc);
+
+  jobject jni_result = (*jni_env)->NewObjectA(jni_env, class, method_id, jni_args);
+
+  drb->mrb_free(mrb, jni_args);
+  handle_jni_exception(mrb);
+
+  return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
+}
+
 // ----- JNI Methods END -----
 
 DRB_FFI_EXPORT
@@ -271,6 +291,7 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
                                "call_static_object_method",
                                jni_call_static_object_method_m,
                                MRB_ARGS_REQ(2) | MRB_ARGS_REST());
+  drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(2) | MRB_ARGS_REST());
 
   jobject activity = (jobject) drb->drb_android_get_sdl_activity();
   drb->mrb_iv_set(mrb,
