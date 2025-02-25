@@ -8,6 +8,7 @@ module JNI
       # def get_method_id(object_reference, name, signature)
       # def get_object_class(object_reference) -> Reference
       # def new_object(class_reference, method_id, *args) -> Reference
+      # def call_static_void_method(class_reference, method_id, *args) -> Void
       # def call_static_object_method(class_reference, method_id, *args) -> Reference
       # def call_static_boolean_method(class_reference, method_id, *args) -> Boolean
     end

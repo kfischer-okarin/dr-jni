@@ -221,6 +221,16 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
   drb->mrb_free(mrb, jni_args);\
   handle_jni_exception(mrb);
 
+static mrb_value jni_call_static_void_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING();
+
+  (*jni_env)->CallStaticVoidMethodA(jni_env, receiver, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP();
+
+  return mrb_nil_value();
+}
+
 static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
@@ -283,6 +293,11 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "get_object_class", jni_get_object_class_m, MRB_ARGS_REQ(1));
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
+  drb->mrb_define_class_method(mrb,
+                               refs.jni,
+                               "call_static_void_method",
+                               jni_call_static_void_method_m,
+                               MRB_ARGS_REQ(2) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb,
                                refs.jni,
                                "call_static_object_method",

@@ -51,6 +51,17 @@ test_case 'FFI.get_object_class' do
   puts "String object class: #{string_object_class.inspect}"
 end
 
+test_case 'FFI.call_static_void_method' do
+  thread_class = JNI::FFI.find_class('java/lang/Thread')
+  sleep_method = JNI::FFI.get_static_method_id(
+    thread_class,
+    'sleep',
+    '(J)V'
+  )
+
+  JNI::FFI.call_static_void_method(thread_class, sleep_method, 10)
+end
+
 test_case 'FFI.call_static_object_method' do
   string_class = JNI::FFI.find_class('java/lang/String')
   value_of_method = JNI::FFI.get_static_method_id(
