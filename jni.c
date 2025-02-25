@@ -205,38 +205,38 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
   return jni_args;
 }
 
-#define CALL_STATIC_METHOD_BEGINNING()\
-  mrb_value class_reference;\
+#define CALL_METHOD_BEGINNING()\
+  mrb_value receiver_reference;\
   mrb_value method_id_reference;\
   mrb_value *args;\
   mrb_int argc;\
-  drb->mrb_get_args(mrb, "oo*", &class_reference, &method_id_reference, &args, &argc);\
+  drb->mrb_get_args(mrb, "oo*", &receiver_reference, &method_id_reference, &args, &argc);\
   \
-  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);\
+  jobject receiver = drb->mrb_data_check_get_ptr(mrb, receiver_reference, &jni_reference_data_type);\
   jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);\
   \
   jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc);
 
-#define CALL_STATIC_METHOD_CLEANUP()\
+#define CALL_METHOD_CLEANUP()\
   drb->mrb_free(mrb, jni_args);\
   handle_jni_exception(mrb);
 
 static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_STATIC_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING();
 
-  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, class, method_id, jni_args);
+  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, receiver, method_id, jni_args);
 
-  CALL_STATIC_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP();
 
   return mrb_bool_value(jni_result);
 }
 
 static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_STATIC_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING();
 
-  jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, class, method_id, jni_args);
+  jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, receiver, method_id, jni_args);
 
-  CALL_STATIC_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP();
 
   if (java_object_is_instance_of(jni_result, "java/lang/String")) {
     return jstring_to_mrb_string(mrb, (jstring) jni_result);
