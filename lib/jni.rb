@@ -45,7 +45,7 @@ module JNI
     end
 
     def inspect
-      "#<#{self.class} #{@reference.qualifier}>"
+      "#<#{self.class} #{@reference.qualifier} (#{java_class.name})>"
     end
   end
 
