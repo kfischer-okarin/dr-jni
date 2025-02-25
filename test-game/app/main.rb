@@ -22,6 +22,7 @@ def run_jni_tests(args)
     puts "========== #{name} =========="
     test.call
     results[name] = 'OK'
+    puts 'OK'
   rescue StandardError => e
     results[name] = "FAIL: #{e}"
     puts "  #{e.message} (#{e.class})"
