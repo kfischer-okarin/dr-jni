@@ -4,12 +4,8 @@ test_case 'FFI.find_class' do
   string_class = JNI::FFI.find_class('java/lang/String')
   puts "Found String class: #{string_class.inspect}"
 
-  begin
+  expect_exception(JNI::FFI::ClassNotFound) do
     JNI::FFI.find_class('nonexistent/Class')
-    raise 'Should have thrown ClassNotFound exception'
-  rescue JNI::FFI::ClassNotFound => e
-    puts 'Successfully caught exception for non-existent class:'
-    puts "  #{e.message} (#{e.class})"
   end
 end
 
@@ -19,12 +15,8 @@ test_case 'FFI.get_static_method_id' do
   value_of_method = JNI::FFI.get_static_method_id(string_class, 'valueOf', '(I)Ljava/lang/String;')
   puts "Found valueOf method: #{value_of_method.inspect}"
 
-  begin
+  expect_exception(JNI::FFI::NoSuchMethod) do
     JNI::FFI.get_static_method_id(string_class, 'nonExistentMethod', '()V')
-    raise 'Should have thrown NoSuchMethod exception'
-  rescue JNI::FFI::NoSuchMethod => e
-    puts 'Successfully caught exception for non-existent static method'
-    puts "  #{e.message} (#{e.class})"
   end
 end
 
@@ -34,12 +26,8 @@ test_case 'FFI.get_method_id' do
   length_method = JNI::FFI.get_method_id(string_class, 'length', '()I')
   puts "Found length method: #{length_method.inspect}"
 
-  begin
+  expect_exception(JNI::FFI::NoSuchMethod) do
     JNI::FFI.get_method_id(string_class, 'nonExistentMethod', '()V')
-    raise 'Should have thrown NoSuchMethod exception'
-  rescue JNI::FFI::NoSuchMethod => e
-    puts 'Successfully caught exception for non-existent method:'
-    puts "  #{e.message} (#{e.class})"
   end
 end
 
