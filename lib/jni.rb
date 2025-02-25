@@ -18,10 +18,11 @@ module JNI
     end
 
     def type_signature(type)
-      result = TYPE_SIGNATURES[type]
-      raise "Unknown type: #{type}" unless result
-
-      result
+      if TYPE_SIGNATURES.key? type
+        TYPE_SIGNATURES[type]
+      else
+        raise "Unknown type: #{type}"
+      end
     end
   end
 
