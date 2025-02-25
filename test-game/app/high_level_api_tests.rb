@@ -13,5 +13,12 @@ test_case 'Calling static methods' do
                                        argument_types: ['java.lang.String'],
                                        return_type: :boolean
   result = boolean_class.parse_boolean 'true'
-  raise 'Expected true from parseBoolean("true")' unless result == true
+  expect_equal_values true, result
+end
+
+test_case 'Building object instances' do
+  url_class = JNI.get_class 'java.net.URL'
+  url_class.register_constructor argument_types: [:string]
+  instance = url_class.build_new_instance 'https://echo.free.beeceptor.com'
+  expect_equal_values 'java.net.URL', instance.java_class.name
 end
