@@ -20,6 +20,9 @@ module JNI
     def type_signature(type)
       if TYPE_SIGNATURES.key? type
         TYPE_SIGNATURES[type]
+      elsif type.is_a? String
+        type_with_slashes = type.gsub('.', '/')
+        "L#{type_with_slashes};"
       else
         raise "Unknown type: #{type}"
       end

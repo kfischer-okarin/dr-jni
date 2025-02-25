@@ -5,7 +5,8 @@ describe JNI do
     [
       [[], :void, '()V'],
       [%i[int boolean], :boolean, '(IZ)Z'],
-      [%i[string], :string, '(Ljava/lang/String;)Ljava/lang/String;']
+      [%i[string], :string, '(Ljava/lang/String;)Ljava/lang/String;'],
+      [[], 'my.package.MyClass', '()Lmy/package/MyClass;']
     ].each do |argument_types, return_type, expected|
       it "for #{argument_types} -> #{return_type}" do
         result = JNI.method_signature(argument_types, return_type)
