@@ -60,7 +60,7 @@ test_case 'FFI.call_static_boolean_method' do
   )
 
   result_true = JNI::FFI.call_static_boolean_method(boolean_class, parse_boolean_method, 'true')
-  raise 'Expected true from parseBoolean("true")' unless result_true == true
+  expect_equal_values(result_true, true)
 
   puts 'Successfully called Boolean.parseBoolean:'
   puts "  parseBoolean(\"true\") = #{result_true}"
@@ -75,7 +75,7 @@ test_case 'FFI.call_static_object_method' do
   )
 
   result_string = JNI::FFI.call_static_object_method(string_class, value_of_method, 42)
-  raise "Expected '42' from valueOf(42)" unless result_string == '42'
+  expect_equal_values(result_string, '42')
 
   puts 'Successfully called String.valueOf:'
   puts "  valueOf(42) = #{result_string.inspect}"

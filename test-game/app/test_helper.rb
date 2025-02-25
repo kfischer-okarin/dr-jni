@@ -11,3 +11,9 @@ rescue exception_class => e
   puts 'Successfully caught exception:'
   puts "  #{e.message} (#{e.class})"
 end
+
+def expect_equal_values(expected, actual)
+  return if expected == actual
+
+  raise "Expected #{expected} but got #{actual}"
+end
