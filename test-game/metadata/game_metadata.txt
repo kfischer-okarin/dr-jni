@@ -6,3 +6,4 @@ gametitle=DR JNI Test
 version=0.1
 icon=metadata/icon.png
 packageid=dev.kf_labo.dr_jni_test
+orientation=portrait
