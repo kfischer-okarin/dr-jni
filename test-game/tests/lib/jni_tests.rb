@@ -36,9 +36,10 @@ module JNI
 
   describe JavaClass do
     it 'can build a new instance' do
+      method_id = 1234
       ffi = a_mock {
         responding_to(:get_method_id) {
-          always_returning(1234)
+          always_returning(method_id)
         }
         responding_to(:new_object) {
           always_returning({ qualifier: 'com.example.MyClass' })
@@ -52,14 +53,15 @@ module JNI
       assert.received_call! ffi, :get_method_id, [class_reference, '<init>', '()V']
 
       instance = java_class.build_new_instance
-      assert.received_call! ffi, :new_object, [class_reference, 1234]
+      assert.received_call! ffi, :new_object, [class_reference, method_id]
       assert.equal! instance.class, JavaObject
     end
 
-    it 'can register a static boolean method' do
+    it 'can register and call a static boolean method' do
+      method_id = 1234
       ffi = a_mock {
         responding_to(:get_static_method_id) {
-          always_returning(1234)
+          always_returning(method_id)
         }
         responding_to(:call_static_boolean_method) {
           always_returning(true)
@@ -74,14 +76,15 @@ module JNI
 
       result = java_class.my_method(1, true)
 
-      assert.received_call! ffi, :call_static_boolean_method, [class_reference, 1234, 1, true]
+      assert.received_call! ffi, :call_static_boolean_method, [class_reference, method_id, 1, true]
       assert.equal! result, true
     end
 
-    it 'can register a static string method' do
+    it 'can register and call a static string method' do
+      method_id = 1234
       ffi = a_mock {
         responding_to(:get_static_method_id) {
-          always_returning(1234)
+          always_returning(method_id)
         }
         responding_to(:call_static_object_method) {
           always_returning('Hello, World!')
@@ -96,7 +99,7 @@ module JNI
 
       result = java_class.my_method(1)
 
-      assert.received_call! ffi, :call_static_object_method, [class_reference, 1234, 1]
+      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, 1]
       assert.equal! result, 'Hello, World!'
     end
   end
