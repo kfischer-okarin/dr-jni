@@ -1,0 +1,8 @@
+# Remove the pound sign and leading space for the properties below before publishing your game.
+devid=kfischer-okarin
+devtitle=Kevin Fischer
+gameid=dr_jni_test
+gametitle=DR JNI Test
+version=0.1
+icon=metadata/icon.png
+packageid=dev.kf_labo.dr_jni_test
