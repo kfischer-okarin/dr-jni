@@ -14,6 +14,13 @@ test_case 'Calling static methods' do
                                        return_type: :boolean
   result = boolean_class.parse_boolean 'true'
   expect_equal_values true, result
+
+  integer_class = JNI.get_class 'java.lang.Integer'
+  integer_class.register_static_method :value_of,
+                                       argument_types: [:int],
+                                       return_type: 'java.lang.Integer'
+  result = integer_class.value_of 42
+  expect_equal_values 'java.lang.Integer', result.java_class.name
 end
 
 test_case 'Building object instances' do

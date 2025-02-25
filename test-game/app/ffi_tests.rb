@@ -79,4 +79,18 @@ test_case 'FFI.call_static_object_method' do
 
   puts 'Successfully called String.valueOf:'
   puts "  valueOf(42) = #{result_string.inspect}"
+
+  integer_class = JNI::FFI.find_class('java/lang/Integer')
+  value_of_method = JNI::FFI.get_static_method_id(
+    integer_class,
+    'valueOf',
+    '(I)Ljava/lang/Integer;'
+  )
+
+  integer_object = JNI::FFI.call_static_object_method(integer_class, value_of_method, 42)
+
+  integer_class_name = JNI::FFI.get_object_class(integer_object)
+  puts 'Successfully called Integer.valueOf:'
+  puts "  valueOf(42) = #{integer_object.inspect}"
+  puts "  Object class: #{integer_class_name.inspect}"
 end

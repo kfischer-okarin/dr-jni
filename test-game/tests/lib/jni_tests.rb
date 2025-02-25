@@ -102,5 +102,29 @@ module JNI
       assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, 1]
       assert.equal! result, 'Hello, World!'
     end
+
+    it 'can register and call a static object method' do
+      method_id = 1234
+      ffi = a_mock {
+        responding_to(:get_static_method_id) do
+          always_returning(method_id)
+        end
+        responding_to(:call_static_object_method) {
+          always_returning({ qualifier: 'some result representation' })
+        }
+      }
+      class_reference = { qualifier: 'class com.example.MyClass' }
+      java_class = JavaClass.new(class_reference, ffi: ffi)
+
+      java_class.register_static_method(:my_method, argument_types: %i[int], return_type: 'java.lang.Integer')
+
+      assert.received_call! ffi, :get_static_method_id, [class_reference, 'myMethod', '(I)Ljava/lang/Integer;']
+
+      result = java_class.my_method(1)
+
+      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, 1]
+      assert.equal! result.class, JavaObject
+      assert.equal! result.reference.qualifier, 'some result representation'
+    end
   end
 end

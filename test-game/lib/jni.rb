@@ -102,6 +102,11 @@ module JNI
         define_singleton_method name do |*args|
           @ffi.call_static_object_method(@reference, method_id, *args)
         end
+      when String
+        define_singleton_method name do |*args|
+          result_reference = @ffi.call_static_object_method(@reference, method_id, *args)
+          JavaObject.new(result_reference, ffi: @ffi)
+        end
       end
     end
 
