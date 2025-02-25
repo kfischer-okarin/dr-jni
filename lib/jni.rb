@@ -35,9 +35,10 @@ module JNI
   class JavaObject
     attr_reader :reference
 
-    def initialize(reference, ffi: FFI)
+    def initialize(reference, ffi: FFI, java_class: nil)
       @reference = reference
       @ffi = ffi
+      @java_class = java_class
     end
 
     def java_class
@@ -63,7 +64,7 @@ module JNI
       raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless method_id
 
       reference = @ffi.new_object(@reference, method_id, *args)
-      JavaObject.new(reference, ffi: @ffi)
+      JavaObject.new(reference, ffi: @ffi, java_class: self)
     end
 
     def register_constructor(argument_types: [])
