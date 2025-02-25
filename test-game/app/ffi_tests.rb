@@ -51,21 +51,6 @@ test_case 'FFI.get_object_class' do
   puts "String object class: #{string_object_class.inspect}"
 end
 
-test_case 'FFI.call_static_boolean_method' do
-  boolean_class = JNI::FFI.find_class('java/lang/Boolean')
-  parse_boolean_method = JNI::FFI.get_static_method_id(
-    boolean_class,
-    'parseBoolean',
-    '(Ljava/lang/String;)Z'
-  )
-
-  result_true = JNI::FFI.call_static_boolean_method(boolean_class, parse_boolean_method, 'true')
-  expect_equal_values(result_true, true)
-
-  puts 'Successfully called Boolean.parseBoolean:'
-  puts "  parseBoolean(\"true\") = #{result_true}"
-end
-
 test_case 'FFI.call_static_object_method' do
   string_class = JNI::FFI.find_class('java/lang/String')
   value_of_method = JNI::FFI.get_static_method_id(
@@ -93,4 +78,19 @@ test_case 'FFI.call_static_object_method' do
   puts 'Successfully called Integer.valueOf:'
   puts "  valueOf(42) = #{integer_object.inspect}"
   puts "  Object class: #{integer_class_name.inspect}"
+end
+
+test_case 'FFI.call_static_boolean_method' do
+  boolean_class = JNI::FFI.find_class('java/lang/Boolean')
+  parse_boolean_method = JNI::FFI.get_static_method_id(
+    boolean_class,
+    'parseBoolean',
+    '(Ljava/lang/String;)Z'
+  )
+
+  result_true = JNI::FFI.call_static_boolean_method(boolean_class, parse_boolean_method, 'true')
+  expect_equal_values(result_true, true)
+
+  puts 'Successfully called Boolean.parseBoolean:'
+  puts "  parseBoolean(\"true\") = #{result_true}"
 end

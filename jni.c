@@ -221,16 +221,6 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
   drb->mrb_free(mrb, jni_args);\
   handle_jni_exception(mrb);
 
-static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
-
-  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, receiver, method_id, jni_args);
-
-  CALL_METHOD_CLEANUP();
-
-  return mrb_bool_value(jni_result);
-}
-
 static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
@@ -243,6 +233,16 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
   }
 
   return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
+}
+
+static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING();
+
+  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, receiver, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP();
+
+  return mrb_bool_value(jni_result);
 }
 
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
@@ -285,13 +285,13 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb,
                                refs.jni,
-                               "call_static_boolean_method",
-                               jni_call_static_boolean_method_m,
+                               "call_static_object_method",
+                               jni_call_static_object_method_m,
                                MRB_ARGS_REQ(2) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb,
                                refs.jni,
-                               "call_static_object_method",
-                               jni_call_static_object_method_m,
+                               "call_static_boolean_method",
+                               jni_call_static_boolean_method_m,
                                MRB_ARGS_REQ(2) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(2) | MRB_ARGS_REST());
 
