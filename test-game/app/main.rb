@@ -1,5 +1,6 @@
 require 'lib/jni'
 require 'app/ffi_tests'
+require 'app/high_level_api_tests'
 
 def tick(args)
   if $gtk.platform? :android

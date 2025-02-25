@@ -6,6 +6,10 @@ module JNI
       @game_activity ||= JavaObject.new(FFI.game_activity_reference)
     end
 
+    def get_class(name)
+      JavaClass.new(FFI.find_class(name))
+    end
+
     def snake_case_to_camel_case(snake_case)
       parts = snake_case.to_s.split('_')
       [parts[0], *parts[1..].map(&:capitalize)].join
