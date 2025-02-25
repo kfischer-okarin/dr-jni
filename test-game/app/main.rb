@@ -1,4 +1,5 @@
 require 'lib/jni'
+require 'app/ffi_tests'
 
 def tick(args)
   if $gtk.platform? :android
@@ -13,10 +14,6 @@ def tick(args)
       alignment_enum: 1, vertical_alignment_enum: 1
     }
   end
-end
-
-TESTS = {}
-TESTS['Access Game Activity'] = lambda do
 end
 
 def run_jni_tests(args)
