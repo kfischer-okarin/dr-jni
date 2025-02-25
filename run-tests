@@ -5,7 +5,7 @@ cd $(dirname $0)/..
 test_file=${1:-tests.rb}
 
 echo "Running tests in $test_file..."
-SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./dragonruby dr-jni --test $test_file | tee logs/tests.log
+SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./dragonruby dr-jni/test-game --test $test_file | tee logs/tests.log
 
 # This grep call is a workaround since DragonRuby does not return an error
 # exit code when the tests fail
