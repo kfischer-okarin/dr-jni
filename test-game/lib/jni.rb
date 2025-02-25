@@ -50,7 +50,14 @@ module JNI
     end
 
     def inspect
-      "#<#{self.class} #{@reference.qualifier} (#{java_class.name})>"
+      class_name = java_class.name
+      qualifier = @reference.qualifier
+
+      if qualifier.include? class_name
+        "#<#{self.class} #{qualifier}>"
+      else
+        "#<#{self.class} #{qualifier} (#{class_name})>"
+      end
     end
   end
 
