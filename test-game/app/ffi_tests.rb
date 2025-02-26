@@ -71,7 +71,7 @@ test_case 'FFI.call_static_object_method' do
   )
 
   result_string = JNI::FFI.call_static_object_method(string_class, value_of_method, 42)
-  expect_equal_values(result_string, '42')
+  expect_equal_values result_string, '42'
 
   puts 'Successfully called String.valueOf:'
   puts "  valueOf(42) = #{result_string.inspect}"
@@ -99,20 +99,20 @@ test_case 'FFI.call_static_boolean_method' do
     '(Ljava/lang/String;)Z'
   )
 
-  result_true = JNI::FFI.call_static_boolean_method(boolean_class, parse_boolean_method, 'true')
-  expect_equal_values(result_true, true)
+  result = JNI::FFI.call_static_boolean_method(boolean_class, parse_boolean_method, 'true')
+  expect_equal_values result, true
 
   puts 'Successfully called Boolean.parseBoolean:'
-  puts "  parseBoolean(\"true\") = #{result_true}"
+  puts "  parseBoolean(\"true\") = #{result}"
 end
 
 test_case 'FFI.call_static_int_method' do
   integer_class = JNI::FFI.find_class('java/lang/Integer')
   compare_method = JNI::FFI.get_static_method_id(integer_class, 'compare', '(II)I')
 
-  result_int = JNI::FFI.call_static_int_method(integer_class, compare_method, 42, 42)
-  expect_equal_values(result_int, 0)
+  result = JNI::FFI.call_static_int_method(integer_class, compare_method, 42, 42)
+  expect_equal_values result, 0
 
   puts 'Successfully called Integer.compare:'
-  puts "  compare(42, 42) = #{result_int}"
+  puts "  compare(42, 42) = #{result}"
 end

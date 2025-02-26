@@ -13,19 +13,19 @@ test_case 'Calling static methods' do
                                        argument_types: ['java.lang.String'],
                                        return_type: :boolean
   result = boolean_class.parse_boolean 'true'
-  expect_equal_values true, result
+  expect_equal_values result, true
 
   integer_class = JNI.get_class 'java.lang.Integer'
   integer_class.register_static_method :value_of,
                                        argument_types: [:int],
                                        return_type: 'java.lang.Integer'
   result = integer_class.value_of 42
-  expect_equal_values 'java.lang.Integer', result.java_class.name
+  expect_equal_values result.java_class.name, 'java.lang.Integer'
 end
 
 test_case 'Building object instances' do
   url_class = JNI.get_class 'java.net.URL'
   url_class.register_constructor argument_types: [:string]
   instance = url_class.build_new_instance 'https://echo.free.beeceptor.com'
-  expect_equal_values 'java.net.URL', instance.java_class.name
+  expect_equal_values instance.java_class.name, 'java.net.URL'
 end

@@ -12,7 +12,7 @@ rescue exception_class => e
   puts "  #{e.message} (#{e.class})"
 end
 
-def expect_equal_values(expected, actual)
+def expect_equal_values(actual, expected)
   return if expected == actual
 
   raise "Expected #{expected} but got #{actual}"
