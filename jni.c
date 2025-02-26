@@ -266,21 +266,11 @@ static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
 }
 
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
-  mrb_value class_reference;
-  mrb_value method_id_reference;
-  mrb_value *args;
-  mrb_int argc;
-  drb->mrb_get_args(mrb, "oo*", &class_reference, &method_id_reference, &args, &argc);
+  CALL_METHOD_BEGINNING();
 
-  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
-  jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);
+  jobject jni_result = (*jni_env)->NewObjectA(jni_env, (jclass)object, method_id, jni_args);
 
-  jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc);
-
-  jobject jni_result = (*jni_env)->NewObjectA(jni_env, class, method_id, jni_args);
-
-  drb->mrb_free(mrb, jni_args);
-  handle_jni_exception(mrb);
+  CALL_METHOD_CLEANUP();
 
   return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
 }
