@@ -37,6 +37,7 @@ module JNI
     boolean: 'Z',
     byte: 'B',
     char: 'C',
+    short: 'S',
     int: 'I',
     string: 'Ljava/lang/String;',
     void: 'V'
