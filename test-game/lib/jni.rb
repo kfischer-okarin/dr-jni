@@ -75,17 +75,20 @@ module JNI
     end
 
     def build_new_instance(*args)
-      method_id = @constructor_by_argument_count[args.size]
-      raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless method_id
+      constructor = @constructor_by_argument_count[args.size]
+      raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless constructor
 
-      reference = @ffi.new_object(@reference, method_id, *args)
+      reference = @ffi.new_object(@reference, constructor[:method_id], constructor[:argument_types], *args)
       JavaObject.new(reference, ffi: @ffi, java_class: self)
     end
 
     def register_constructor(argument_types: [])
       signature = JNI.method_signature(argument_types, :void)
       method_id = @ffi.get_method_id(@reference, '<init>', signature)
-      @constructor_by_argument_count[argument_types.size] = method_id
+      @constructor_by_argument_count[argument_types.size] = {
+        method_id: method_id,
+        argument_types: argument_types
+      }
     end
 
     def register_static_method(name, argument_types: [], return_type: :void)
@@ -96,15 +99,15 @@ module JNI
       case return_type
       when :boolean
         define_singleton_method name do |*args|
-          @ffi.call_static_boolean_method(@reference, method_id, *args)
+          @ffi.call_static_boolean_method(@reference, method_id, argument_types, *args)
         end
       when :string
         define_singleton_method name do |*args|
-          @ffi.call_static_object_method(@reference, method_id, *args)
+          @ffi.call_static_object_method(@reference, method_id, argument_types, *args)
         end
       when String
         define_singleton_method name do |*args|
-          result_reference = @ffi.call_static_object_method(@reference, method_id, *args)
+          result_reference = @ffi.call_static_object_method(@reference, method_id, argument_types, *args)
           JavaObject.new(result_reference, ffi: @ffi)
         end
       end

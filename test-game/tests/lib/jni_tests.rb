@@ -53,7 +53,7 @@ module JNI
       assert.received_call! ffi, :get_method_id, [class_reference, '<init>', '()V']
 
       instance = java_class.build_new_instance
-      assert.received_call! ffi, :new_object, [class_reference, method_id]
+      assert.received_call! ffi, :new_object, [class_reference, method_id, []]
       assert.equal! instance.class, JavaObject
     end
 
@@ -76,7 +76,7 @@ module JNI
 
       result = java_class.my_method(1, true)
 
-      assert.received_call! ffi, :call_static_boolean_method, [class_reference, method_id, 1, true]
+      assert.received_call! ffi, :call_static_boolean_method, [class_reference, method_id, %i[int boolean], 1, true]
       assert.equal! result, true
     end
 
@@ -99,7 +99,7 @@ module JNI
 
       result = java_class.my_method(1)
 
-      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, 1]
+      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, %i[int], 1]
       assert.equal! result, 'Hello, World!'
     end
 
@@ -122,7 +122,7 @@ module JNI
 
       result = java_class.my_method(1)
 
-      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, 1]
+      assert.received_call! ffi, :call_static_object_method, [class_reference, method_id, %i[int], 1]
       assert.equal! result.class, JavaObject
       assert.equal! result.reference.qualifier, 'some result representation'
     end

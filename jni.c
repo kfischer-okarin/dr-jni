@@ -190,7 +190,10 @@ static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
   return wrap_jni_reference_in_object(mrb, class, "jclass");
 }
 
-static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb_int argc) {
+static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
+                                            mrb_value *args,
+                                            mrb_int argc,
+                                            mrb_value argument_types_array) {
   jvalue *jni_args = drb->mrb_malloc(mrb, sizeof(jvalue) * argc);
   for (int i = 0; i < argc; i++) {
     if (mrb_integer_p(args[i])) {
@@ -208,14 +211,15 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
 #define CALL_METHOD_BEGINNING()\
   mrb_value object_reference;\
   mrb_value method_id_reference;\
+  mrb_value argument_types_array;\
   mrb_value *args;\
   mrb_int argc;\
-  drb->mrb_get_args(mrb, "oo*", &object_reference, &method_id_reference, &args, &argc);\
+  drb->mrb_get_args(mrb, "ooo*", &object_reference, &method_id_reference, &argument_types_array, &args, &argc);\
   \
   jobject object = drb->mrb_data_check_get_ptr(mrb, object_reference, &jni_reference_data_type);\
   jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);\
   \
-  jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc);
+  jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc, argument_types_array);
 
 #define CALL_METHOD_CLEANUP()\
   drb->mrb_free(mrb, jni_args);\
@@ -299,11 +303,11 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
                                refs.jni,\
                                "call_static_" #type "_method",\
                                jni_call_static_ ## type ## _method_m,\
-                               MRB_ARGS_REQ(2) | MRB_ARGS_REST());
+                               MRB_ARGS_REQ(3) | MRB_ARGS_REST());
 #include "define_for_jni_types.c.inc"
 #undef FOR_JNI_TYPE
 
-  drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(2) | MRB_ARGS_REST());
+  drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(3) | MRB_ARGS_REST());
 
   jobject activity = (jobject) drb->drb_android_get_sdl_activity();
   drb->mrb_iv_set(mrb,
