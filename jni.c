@@ -218,6 +218,14 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           drb->mrb_raise(mrb, refs.jni_exception, "Expected byte argument");
           return NULL;
         }
+      } else if (strcmp(type_name, "char") == 0) {
+        if (mrb_string_p(args[i]) && RSTRING_LEN(args[i]) == 1) {
+          jni_args[i].c = (jchar)RSTRING_PTR(args[i])[0];
+        } else {
+          drb->mrb_free(mrb, jni_args);
+          drb->mrb_raise(mrb, refs.jni_exception, "Expected char argument");
+          return NULL;
+        }
       }
     }
 

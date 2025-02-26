@@ -79,6 +79,23 @@ test_case 'FFI byte parameters' do
   end
 end
 
+test_case 'FFI char parameters' do
+  char_class = JNI::FFI.find_class('java/lang/Character')
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    char_class,
+    'valueOf',
+    '(C)Ljava/lang/Character;'
+  )
+
+  test_parameters(
+    valid_examples: %w[A Z 9],
+    invalid_examples: [nil, 'not a char']
+  ) do |value|
+    JNI::FFI.call_static_object_method(char_class, value_of_method, %i[char], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')
