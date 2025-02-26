@@ -181,6 +181,25 @@ test_case 'FFI double parameters' do
   end
 end
 
+test_case 'FFI object parameters' do
+  string_class = JNI::FFI.find_class('java/lang/String')
+  constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')
+  string_object = JNI::FFI.new_object(string_class, constructor_method, [])
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    string_class,
+    'valueOf',
+    '(Ljava/lang/Object;)Ljava/lang/String;'
+  )
+
+  test_parameters(
+    valid_examples: [string_object, nil],
+    invalid_examples: [42]
+  ) do |value|
+    JNI::FFI.call_static_object_method(string_class, value_of_method, ['java.lang.Object'], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')

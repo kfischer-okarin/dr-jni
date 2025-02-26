@@ -10,7 +10,7 @@ end
 test_case 'Calling static methods' do
   boolean_class = JNI.get_class 'java.lang.Boolean'
   boolean_class.register_static_method :parse_boolean,
-                                       argument_types: ['java.lang.String'],
+                                       argument_types: [:string],
                                        return_type: :boolean
   result = boolean_class.parse_boolean 'true'
   expect_equal_values result, true

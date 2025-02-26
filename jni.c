@@ -262,6 +262,17 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           break;
         }
       }
+    } else if (mrb_string_p(type)) {
+      // Java class type
+      if (drb->mrb_obj_is_instance_of(mrb, args[i], refs.jni_reference)) {
+        jobject obj = drb->mrb_data_check_get_ptr(mrb, args[i], &jni_reference_data_type);
+        jni_args[i].l = obj;
+      } else if (mrb_nil_p(args[i])) {
+        jni_args[i].l = NULL;
+      } else {
+        error_message = "Expected JNI::Reference object or nil";
+        break;
+      }
     }
     if (mrb_string_p(args[i])) {
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
