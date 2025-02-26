@@ -234,12 +234,18 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           drb->mrb_raise(mrb, refs.jni_exception, "Expected short argument");
           return NULL;
         }
+      } else if (strcmp(type_name, "int") == 0) {
+        if (mrb_integer_p(args[i])) {
+          jni_args[i].i = (jint)mrb_integer(args[i]);
+        } else {
+          drb->mrb_free(mrb, jni_args);
+          drb->mrb_raise(mrb, refs.jni_exception, "Expected int argument");
+          return NULL;
+        }
       }
     }
 
-    if (mrb_integer_p(args[i])) {
-      jni_args[i].i = mrb_integer(args[i]);
-    } else if (mrb_string_p(args[i])) {
+    if (mrb_string_p(args[i])) {
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     }
   }
