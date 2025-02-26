@@ -206,13 +206,13 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
 }
 
 #define CALL_METHOD_BEGINNING()\
-  mrb_value receiver_reference;\
+  mrb_value object_reference;\
   mrb_value method_id_reference;\
   mrb_value *args;\
   mrb_int argc;\
-  drb->mrb_get_args(mrb, "oo*", &receiver_reference, &method_id_reference, &args, &argc);\
+  drb->mrb_get_args(mrb, "oo*", &object_reference, &method_id_reference, &args, &argc);\
   \
-  jobject receiver = drb->mrb_data_check_get_ptr(mrb, receiver_reference, &jni_reference_data_type);\
+  jobject object = drb->mrb_data_check_get_ptr(mrb, object_reference, &jni_reference_data_type);\
   jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);\
   \
   jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc);
@@ -224,7 +224,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb, mrb_value *args, mrb
 static mrb_value jni_call_static_void_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
-  (*jni_env)->CallStaticVoidMethodA(jni_env, receiver, method_id, jni_args);
+  (*jni_env)->CallStaticVoidMethodA(jni_env, (jclass)object, method_id, jni_args);
 
   CALL_METHOD_CLEANUP();
 
@@ -234,7 +234,7 @@ static mrb_value jni_call_static_void_method_m(mrb_state *mrb, mrb_value self) {
 static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
-  jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, receiver, method_id, jni_args);
+  jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, (jclass)object, method_id, jni_args);
 
   CALL_METHOD_CLEANUP();
 
@@ -248,7 +248,7 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
 static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
-  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, receiver, method_id, jni_args);
+  jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, (jclass)object, method_id, jni_args);
 
   CALL_METHOD_CLEANUP();
 
@@ -258,7 +258,7 @@ static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self
 static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
-  jint jni_result = (*jni_env)->CallStaticIntMethodA(jni_env, receiver, method_id, jni_args);
+  jint jni_result = (*jni_env)->CallStaticIntMethodA(jni_env, (jclass)object, method_id, jni_args);
 
   CALL_METHOD_CLEANUP();
 
