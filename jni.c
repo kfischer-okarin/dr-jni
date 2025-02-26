@@ -210,6 +210,14 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           drb->mrb_raise(mrb, refs.jni_exception, "Expected boolean argument");
           return NULL;
         }
+      } else if (strcmp(type_name, "byte") == 0) {
+        if (mrb_integer_p(args[i])) {
+          jni_args[i].b = (jbyte)mrb_integer(args[i]);
+        } else {
+          drb->mrb_free(mrb, jni_args);
+          drb->mrb_raise(mrb, refs.jni_exception, "Expected byte argument");
+          return NULL;
+        }
       }
     }
 

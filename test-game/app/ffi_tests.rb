@@ -62,6 +62,23 @@ test_case 'FFI boolean parameters' do
   end
 end
 
+test_case 'FFI byte parameters' do
+  byte_class = JNI::FFI.find_class('java/lang/Byte')
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    byte_class,
+    'valueOf',
+    '(B)Ljava/lang/Byte;'
+  )
+
+  test_parameters(
+    valid_examples: [127, -128],
+    invalid_examples: [nil, 'not a byte']
+  ) do |value|
+    JNI::FFI.call_static_object_method(byte_class, value_of_method, %i[byte], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')
