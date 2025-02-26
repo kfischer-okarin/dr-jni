@@ -31,6 +31,20 @@ test_case 'FFI.get_method_id' do
   end
 end
 
+def test_parameters(valid_examples:, invalid_examples:, &block)
+  valid_examples.each do |example|
+    puts "Testing valid example: #{example.inspect}"
+    block.call(example)
+  end
+
+  invalid_examples.each do |example|
+    puts "Testing invalid example: #{example.inspect}"
+    expect_exception(JNI::FFI::Exception) do
+      block.call(example)
+    end
+  end
+end
+
 test_case 'FFI boolean parameters' do
   boolean_class = JNI::FFI.find_class('java/lang/Boolean')
 
@@ -40,15 +54,11 @@ test_case 'FFI boolean parameters' do
     '(Z)Ljava/lang/Boolean;'
   )
 
-  JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], true)
-  JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], false)
-
-  expect_exception(JNI::FFI::Exception) do
-    JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], nil)
-  end
-
-  expect_exception(JNI::FFI::Exception) do
-    JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], 'not a boolean')
+  test_parameters(
+    valid_examples: [true, false],
+    invalid_examples: [nil, 'not a boolean']
+  ) do |value|
+    JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], value)
   end
 end
 
