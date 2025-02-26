@@ -31,6 +31,27 @@ test_case 'FFI.get_method_id' do
   end
 end
 
+test_case 'FFI boolean parameters' do
+  boolean_class = JNI::FFI.find_class('java/lang/Boolean')
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    boolean_class,
+    'valueOf',
+    '(Z)Ljava/lang/Boolean;'
+  )
+
+  JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], true)
+  JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], false)
+
+  expect_exception(JNI::FFI::Exception) do
+    JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], nil)
+  end
+
+  expect_exception(JNI::FFI::Exception) do
+    JNI::FFI.call_static_object_method(boolean_class, value_of_method, %i[boolean], 'not a boolean')
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')

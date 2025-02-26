@@ -195,14 +195,28 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
                                             mrb_int argc,
                                             mrb_value argument_types_array) {
   jvalue *jni_args = drb->mrb_malloc(mrb, sizeof(jvalue) * argc);
+
   for (int i = 0; i < argc; i++) {
+    mrb_value type = RARRAY_PTR(argument_types_array)[i];
+
+    if (mrb_symbol_p(type)) {
+      const char *type_name = drb->mrb_sym2name(mrb, mrb_symbol(type));
+
+      if (strcmp(type_name, "boolean") == 0) {
+        if (mrb_true_p(args[i]) || mrb_false_p(args[i])) {
+          jni_args[i].z = mrb_bool(args[i]);
+        } else {
+          drb->mrb_free(mrb, jni_args);
+          drb->mrb_raise(mrb, refs.jni_exception, "Expected boolean argument");
+          return NULL;
+        }
+      }
+    }
+
     if (mrb_integer_p(args[i])) {
       jni_args[i].i = mrb_integer(args[i]);
     } else if (mrb_string_p(args[i])) {
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
-    } else {
-      drb->mrb_free(mrb, jni_args);
-      drb->mrb_raise(mrb, refs.jni_exception, "Only String and Fixnum arguments are supported");
     }
   }
   return jni_args;
