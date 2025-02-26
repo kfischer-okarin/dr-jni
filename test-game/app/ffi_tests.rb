@@ -62,7 +62,7 @@ test_case 'FFI.call_static_void_method' do
   JNI::FFI.call_static_void_method(thread_class, sleep_method, %i[long], 1000)
 end
 
-test_case 'FFI.call_static_object_method' do
+test_case 'FFI.call_static_object_method (returning String)' do
   string_class = JNI::FFI.find_class('java/lang/String')
   value_of_method = JNI::FFI.get_static_method_id(
     string_class,
@@ -75,7 +75,9 @@ test_case 'FFI.call_static_object_method' do
 
   puts 'Successfully called String.valueOf:'
   puts "  valueOf(42) = #{result_string.inspect}"
+end
 
+test_case 'FFI.call_static_object_method (returning an object)' do
   integer_class = JNI::FFI.find_class('java/lang/Integer')
   value_of_method = JNI::FFI.get_static_method_id(
     integer_class,
