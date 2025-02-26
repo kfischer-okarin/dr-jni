@@ -196,6 +196,9 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
                                             mrb_value argument_types_array) {
   jvalue *jni_args = drb->mrb_malloc(mrb, sizeof(jvalue) * argc);
 
+  // error message
+  char *error_message = NULL;
+
   for (int i = 0; i < argc; i++) {
     mrb_value type = RARRAY_PTR(argument_types_array)[i];
 
@@ -206,41 +209,36 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
         if (mrb_true_p(args[i]) || mrb_false_p(args[i])) {
           jni_args[i].z = mrb_bool(args[i]);
         } else {
-          drb->mrb_free(mrb, jni_args);
-          drb->mrb_raise(mrb, refs.jni_exception, "Expected boolean argument");
-          return NULL;
+          error_message = "Expected boolean argument";
+          break;
         }
       } else if (strcmp(type_name, "byte") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].b = (jbyte)mrb_integer(args[i]);
         } else {
-          drb->mrb_free(mrb, jni_args);
-          drb->mrb_raise(mrb, refs.jni_exception, "Expected byte argument");
-          return NULL;
+          error_message = "Expected byte argument";
+          break;
         }
       } else if (strcmp(type_name, "char") == 0) {
         if (mrb_string_p(args[i]) && RSTRING_LEN(args[i]) == 1) {
           jni_args[i].c = (jchar)RSTRING_PTR(args[i])[0];
         } else {
-          drb->mrb_free(mrb, jni_args);
-          drb->mrb_raise(mrb, refs.jni_exception, "Expected char argument");
-          return NULL;
+          error_message = "Expected char argument";
+          break;
         }
       } else if (strcmp(type_name, "short") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].s = (jshort)mrb_integer(args[i]);
         } else {
-          drb->mrb_free(mrb, jni_args);
-          drb->mrb_raise(mrb, refs.jni_exception, "Expected short argument");
-          return NULL;
+          error_message = "Expected short argument";
+          break;
         }
       } else if (strcmp(type_name, "int") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].i = (jint)mrb_integer(args[i]);
         } else {
-          drb->mrb_free(mrb, jni_args);
-          drb->mrb_raise(mrb, refs.jni_exception, "Expected int argument");
-          return NULL;
+          error_message = "Expected int argument";
+          break;
         }
       }
     }
@@ -249,6 +247,13 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     }
   }
+
+  if (error_message) {
+    drb->mrb_free(mrb, jni_args);
+    drb->mrb_raise(mrb, refs.jni_exception, error_message);
+    return NULL;
+  }
+
   return jni_args;
 }
 
