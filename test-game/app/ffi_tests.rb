@@ -130,6 +130,23 @@ test_case 'FFI int parameters' do
   end
 end
 
+test_case 'FFI long parameters' do
+  long_class = JNI::FFI.find_class('java/lang/Long')
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    long_class,
+    'valueOf',
+    '(J)Ljava/lang/Long;'
+  )
+
+  test_parameters(
+    valid_examples: [9_223_372_036_854_775_807, -9_223_372_036_854_775_808],
+    invalid_examples: [nil, 'not a long']
+  ) do |value|
+    JNI::FFI.call_static_object_method(long_class, value_of_method, %i[long], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')

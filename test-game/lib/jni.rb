@@ -39,6 +39,7 @@ module JNI
     char: 'C',
     short: 'S',
     int: 'I',
+    long: 'J',
     string: 'Ljava/lang/String;',
     void: 'V'
   }

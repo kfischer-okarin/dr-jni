@@ -240,6 +240,13 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           error_message = "Expected int argument";
           break;
         }
+      } else if (strcmp(type_name, "long") == 0) {
+        if (mrb_integer_p(args[i])) {
+          jni_args[i].j = (jlong)mrb_integer(args[i]);
+        } else {
+          error_message = "Expected long argument";
+          break;
+        }
       }
     }
 
