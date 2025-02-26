@@ -147,6 +147,23 @@ test_case 'FFI long parameters' do
   end
 end
 
+test_case 'FFI float parameters' do
+  float_class = JNI::FFI.find_class('java/lang/Float')
+
+  value_of_method = JNI::FFI.get_static_method_id(
+    float_class,
+    'valueOf',
+    '(F)Ljava/lang/Float;'
+  )
+
+  test_parameters(
+    valid_examples: [3.14, -1.23],
+    invalid_examples: [nil, 'not a float']
+  ) do |value|
+    JNI::FFI.call_static_object_method(float_class, value_of_method, %i[float], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')

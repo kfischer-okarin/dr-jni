@@ -247,6 +247,13 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           error_message = "Expected long argument";
           break;
         }
+      } else if (strcmp(type_name, "float") == 0) {
+        if (mrb_float_p(args[i])) {
+          jni_args[i].f = (jfloat)mrb_float(args[i]);
+        } else {
+          error_message = "Expected float argument";
+          break;
+        }
       }
     }
 
