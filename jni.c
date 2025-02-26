@@ -254,9 +254,15 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           error_message = "Expected float argument";
           break;
         }
+      } else if (strcmp(type_name, "double") == 0) {
+        if (mrb_float_p(args[i])) {
+          jni_args[i].d = (jdouble)mrb_float(args[i]);
+        } else {
+          error_message = "Expected double argument";
+          break;
+        }
       }
     }
-
     if (mrb_string_p(args[i])) {
       jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     }

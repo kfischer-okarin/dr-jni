@@ -41,6 +41,7 @@ module JNI
     int: 'I',
     long: 'J',
     float: 'F',
+    double: 'D',
     string: 'Ljava/lang/String;',
     void: 'V'
   }
