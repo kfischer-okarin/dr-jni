@@ -219,6 +219,11 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   jobject object = drb->mrb_data_check_get_ptr(mrb, object_reference, &jni_reference_data_type);\
   jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);\
   \
+  if (!mrb_array_p(argument_types_array) || RARRAY_LEN(argument_types_array) != argc) {\
+    drb->mrb_raise(mrb, refs.jni_exception, "argument_types must be an array with the same length as args");\
+    return mrb_nil_value();\
+  }\
+  \
   jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc, argument_types_array);
 
 #define CALL_METHOD_CLEANUP()\
