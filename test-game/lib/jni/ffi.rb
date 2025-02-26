@@ -11,6 +11,7 @@ module JNI
       # def call_static_void_method(class_reference, method_id, *args) -> Void
       # def call_static_object_method(class_reference, method_id, *args) -> Reference
       # def call_static_boolean_method(class_reference, method_id, *args) -> Boolean
+      # def call_static_int_method(class_reference, method_id, *args) -> Integer
     end
 
     class Exception < StandardError; end

@@ -255,6 +255,16 @@ static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self
   return mrb_bool_value(jni_result);
 }
 
+static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING();
+
+  jint jni_result = (*jni_env)->CallStaticIntMethodA(jni_env, receiver, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP();
+
+  return mrb_fixnum_value(jni_result);
+}
+
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
   mrb_value class_reference;
   mrb_value method_id_reference;
@@ -307,6 +317,11 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
                                refs.jni,
                                "call_static_boolean_method",
                                jni_call_static_boolean_method_m,
+                               MRB_ARGS_REQ(2) | MRB_ARGS_REST());
+  drb->mrb_define_class_method(mrb,
+                               refs.jni,
+                               "call_static_int_method",
+                               jni_call_static_int_method_m,
                                MRB_ARGS_REQ(2) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(2) | MRB_ARGS_REST());
 

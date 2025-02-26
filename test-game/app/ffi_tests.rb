@@ -105,3 +105,14 @@ test_case 'FFI.call_static_boolean_method' do
   puts 'Successfully called Boolean.parseBoolean:'
   puts "  parseBoolean(\"true\") = #{result_true}"
 end
+
+test_case 'FFI.call_static_int_method' do
+  integer_class = JNI::FFI.find_class('java/lang/Integer')
+  compare_method = JNI::FFI.get_static_method_id(integer_class, 'compare', '(II)I')
+
+  result_int = JNI::FFI.call_static_int_method(integer_class, compare_method, 42, 42)
+  expect_equal_values(result_int, 0)
+
+  puts 'Successfully called Integer.compare:'
+  puts "  compare(42, 42) = #{result_int}"
+end
