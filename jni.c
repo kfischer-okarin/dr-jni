@@ -207,6 +207,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
 
   // error message
   char *error_message = NULL;
+  int error_argument_index = -1;
 
   for (int i = 0; i < argc; i++) {
     mrb_value type = RARRAY_PTR(argument_types_array)[i];
@@ -219,56 +220,48 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           jni_args[i].z = mrb_bool(args[i]);
         } else {
           error_message = "Expected boolean argument";
-          break;
         }
       } else if (strcmp(type_name, "byte") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].b = (jbyte)mrb_integer(args[i]);
         } else {
           error_message = "Expected byte argument";
-          break;
         }
       } else if (strcmp(type_name, "char") == 0) {
         if (mrb_string_p(args[i]) && RSTRING_LEN(args[i]) == 1) {
           jni_args[i].c = (jchar)RSTRING_PTR(args[i])[0];
         } else {
           error_message = "Expected char argument";
-          break;
         }
       } else if (strcmp(type_name, "short") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].s = (jshort)mrb_integer(args[i]);
         } else {
           error_message = "Expected short argument";
-          break;
         }
       } else if (strcmp(type_name, "int") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].i = (jint)mrb_integer(args[i]);
         } else {
           error_message = "Expected int argument";
-          break;
         }
       } else if (strcmp(type_name, "long") == 0) {
         if (mrb_integer_p(args[i])) {
           jni_args[i].j = (jlong)mrb_integer(args[i]);
         } else {
           error_message = "Expected long argument";
-          break;
         }
       } else if (strcmp(type_name, "float") == 0) {
         if (mrb_float_p(args[i])) {
           jni_args[i].f = (jfloat)mrb_float(args[i]);
         } else {
           error_message = "Expected float argument";
-          break;
         }
       } else if (strcmp(type_name, "double") == 0) {
         if (mrb_float_p(args[i])) {
           jni_args[i].d = (jdouble)mrb_float(args[i]);
         } else {
           error_message = "Expected double argument";
-          break;
         }
       } else if (strcmp(type_name, "string") == 0) {
         if (mrb_string_p(args[i])) {
@@ -277,7 +270,6 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           jni_args[i].l = NULL;
         } else {
           error_message = "Expected string argument or nil";
-          break;
         }
       }
     } else if (mrb_string_p(type)) {
@@ -289,15 +281,19 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
         jni_args[i].l = NULL;
       } else {
         error_message = "Expected JNI::Reference object or nil";
-        break;
       }
+    }
+
+    if (error_message) {
+      error_argument_index = i;
+      break;
     }
   }
 
   if (error_message) {
     drb->mrb_free(mrb, jni_args);
     struct RClass *exception_class = drb->mrb_class_get_under(mrb, refs.jni, "WrongArgumentType");
-    drb->mrb_raise(mrb, exception_class, error_message);
+    drb->mrb_raisef(mrb, exception_class, "Argument %d: %s", error_argument_index + 1, error_message);
     return NULL;
   }
 
