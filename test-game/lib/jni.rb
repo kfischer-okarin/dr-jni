@@ -7,7 +7,7 @@ module JNI
     end
 
     def get_class(name)
-      JavaClass.new(FFI.find_class(name))
+      JavaClass.new(FFI.find_class(name.gsub('.', '/')))
     end
 
     def snake_case_to_camel_case(snake_case)
