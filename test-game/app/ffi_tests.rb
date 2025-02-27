@@ -35,6 +35,8 @@ def test_parameters(valid_examples:, invalid_examples:, &block)
   valid_examples.each do |example|
     puts "Testing valid example: #{example.inspect}"
     block.call(example)
+  rescue JNI::FFI::JavaException
+    # ignore we don't care about the exception only about argument type errors
   end
 
   invalid_examples.each do |example|
