@@ -202,6 +202,18 @@ test_case 'FFI object parameters' do
   end
 end
 
+test_case 'FFI string parameters' do
+  string_class = JNI::FFI.find_class('java/lang/String')
+  string_from_str_constructor = JNI::FFI.get_method_id(string_class, '<init>', '(Ljava/lang/String;)V')
+
+  test_parameters(
+    valid_examples: ['en-US', nil],
+    invalid_examples: [42]
+  ) do |value|
+    JNI::FFI.new_object(string_class, string_from_str_constructor, %i[string], value)
+  end
+end
+
 test_case 'FFI.new_object' do
   string_class = JNI::FFI.find_class('java/lang/String')
   constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')

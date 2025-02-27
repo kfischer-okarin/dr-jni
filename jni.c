@@ -270,6 +270,15 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
           error_message = "Expected double argument";
           break;
         }
+      } else if (strcmp(type_name, "string") == 0) {
+        if (mrb_string_p(args[i])) {
+          jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
+        } else if (mrb_nil_p(args[i])) {
+          jni_args[i].l = NULL;
+        } else {
+          error_message = "Expected string argument or nil";
+          break;
+        }
       }
     } else if (mrb_string_p(type)) {
       // Java class type
@@ -282,9 +291,6 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
         error_message = "Expected JNI::Reference object or nil";
         break;
       }
-    }
-    if (mrb_string_p(args[i])) {
-      jni_args[i].l = (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &args[i]));
     }
   }
 
