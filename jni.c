@@ -43,6 +43,20 @@ static mrb_value jstring_to_mrb_string(mrb_state *mrb, jstring jstring) {
   return result;
 }
 
+static jstring get_java_object_class_name(jobject object) {
+  jclass class_class = (*jni_env)->FindClass(jni_env, "java/lang/Class");
+  jmethodID get_name_method = (*jni_env)->GetMethodID(jni_env, class_class, "getName", "()Ljava/lang/String;");
+  jclass object_class = (*jni_env)->GetObjectClass(jni_env, object);
+  return (*jni_env)->CallObjectMethod(jni_env, object_class, get_name_method);
+}
+
+static bool jstring_equals_cstr(jstring jstring, const char *expected_cstr) {
+  const char *cstr = (*jni_env)->GetStringUTFChars(jni_env, jstring, NULL);
+  bool result = strcmp(cstr, expected_cstr) == 0;
+  (*jni_env)->ReleaseStringUTFChars(jni_env, jstring, cstr);
+  return result;
+}
+
 // ----- JNI Reference Data Type -----
 
 static const jstring java_object_to_string(jobject object) {
@@ -93,17 +107,6 @@ static void *unwrap_jni_pointer_from_object(mrb_state *mrb, mrb_value object) {
 
 // ----- JNI Pointer Data Type END -----
 
-static jstring get_java_class_name(jclass class) {
-  jclass class_class = (*jni_env)->FindClass(jni_env, "java/lang/Class");
-  jmethodID get_name_method = (*jni_env)->GetMethodID(jni_env, class_class, "getName", "()Ljava/lang/String;");
-  return (*jni_env)->CallObjectMethod(jni_env, class, get_name_method);
-}
-
-static bool java_object_is_instance_of(jobject object, const char *class_name) {
-  jclass class = (*jni_env)->FindClass(jni_env, class_name);
-  return (*jni_env)->IsInstanceOf(jni_env, object, class);
-}
-
 static jstring get_exception_message(jthrowable exception) {
   jclass exception_class = (*jni_env)->GetObjectClass(jni_env, exception);
   jmethodID get_message_method = (*jni_env)->GetMethodID(jni_env, exception_class, "getMessage", "()Ljava/lang/String;");
@@ -117,14 +120,14 @@ static void handle_jni_exception(mrb_state *mrb) {
   }
   (*jni_env)->ExceptionClear(jni_env);
 
-  jstring message = get_exception_message(exception);
-  mrb_value exception_message = jstring_to_mrb_string(mrb, message);
+  jstring exception_class_name = get_java_object_class_name(exception);
+  mrb_value exception_message = jstring_to_mrb_string(mrb, get_exception_message(exception));
 
   struct RClass *exception_class = refs.jni_exception;
 
-  if (java_object_is_instance_of(exception, "java/lang/ClassNotFoundException")) {
+  if (jstring_equals_cstr(exception_class_name, "java.lang.ClassNotFoundException")) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "ClassNotFound");
-  } else if (java_object_is_instance_of(exception, "java/lang/NoSuchMethodError")) {
+  } else if (jstring_equals_cstr(exception_class_name, "java.lang.NoSuchMethodError")) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "NoSuchMethod");
   }
 
@@ -330,7 +333,7 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
 
   CALL_METHOD_CLEANUP();
 
-  if (java_object_is_instance_of(jni_result, "java/lang/String")) {
+  if (jstring_equals_cstr(get_java_object_class_name(jni_result), "java.lang.String")) {
     return jstring_to_mrb_string(mrb, (jstring) jni_result);
   }
 
