@@ -39,7 +39,7 @@ def test_parameters(valid_examples:, invalid_examples:, &block)
 
   invalid_examples.each do |example|
     puts "Testing invalid example: #{example.inspect}"
-    expect_exception(JNI::FFI::Exception) do
+    expect_exception(JNI::FFI::WrongArgumentType) do
       block.call(example)
     end
   end

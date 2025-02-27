@@ -281,7 +281,8 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
 
   if (error_message) {
     drb->mrb_free(mrb, jni_args);
-    drb->mrb_raise(mrb, refs.jni_exception, error_message);
+    struct RClass *exception_class = drb->mrb_class_get_under(mrb, refs.jni, "WrongArgumentType");
+    drb->mrb_raise(mrb, exception_class, error_message);
     return NULL;
   }
 
