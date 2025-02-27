@@ -217,7 +217,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
 
       if (strcmp(type_name, "boolean") == 0) {
         if (mrb_true_p(args[i]) || mrb_false_p(args[i])) {
-          jni_args[i].z = mrb_bool(args[i]);
+          jni_args[i].z = (jboolean)mrb_bool(args[i]);
         } else {
           error_message = "Expected boolean argument";
         }
