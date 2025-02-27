@@ -321,6 +321,17 @@ test_case 'FFI.call_static_char_method' do
   puts "  toLowerCase('A') = #{result.inspect}"
 end
 
+test_case 'FFI.call_static_short_method' do
+  short_class = JNI::FFI.find_class('java/lang/Short')
+  parse_short_method = JNI::FFI.get_static_method_id(short_class, 'parseShort', '(Ljava/lang/String;)S')
+
+  result = JNI::FFI.call_static_short_method(short_class, parse_short_method, %i[string], '42')
+  expect_equal_values result, 42
+
+  puts 'Successfully called Short.parseShort:'
+  puts "  parseShort(\"42\") = #{result}"
+end
+
 test_case 'FFI.call_static_int_method' do
   integer_class = JNI::FFI.find_class('java/lang/Integer')
   compare_method = JNI::FFI.get_static_method_id(integer_class, 'compare', '(II)I')

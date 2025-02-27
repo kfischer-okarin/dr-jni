@@ -13,6 +13,7 @@ module JNI
       # def call_static_boolean_method(class_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
       # def call_static_byte_method(class_reference, method_id, argument_types, *args) -> Integer
       # def call_static_char_method(class_reference, method_id, argument_types, *args) -> String
+      # def call_static_short_method(class_reference, method_id, argument_types, *args) -> Integer
       # def call_static_int_method(class_reference, method_id, argument_types, *args) -> Integer
       # def call_static_long_method(class_reference, method_id, argument_types, *args) -> Integer
     end
