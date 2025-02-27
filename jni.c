@@ -271,6 +271,8 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
         } else {
           error_message = "Expected string argument or nil";
         }
+      } else {
+        error_message = "Unknown type symbol";
       }
     } else if (mrb_string_p(type)) {
       // Java class type
@@ -282,6 +284,8 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
       } else {
         error_message = "Expected JNI::Reference object or nil";
       }
+    } else {
+      error_message = "Type must be a symbol or string";
     }
 
     if (error_message) {
