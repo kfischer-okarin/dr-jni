@@ -301,3 +301,14 @@ test_case 'FFI.call_static_int_method' do
   puts 'Successfully called Integer.compare:'
   puts "  compare(42, 42) = #{result}"
 end
+
+test_case 'FFI.call_static_long_method' do
+  long_class = JNI::FFI.find_class('java/lang/Long')
+  max_method = JNI::FFI.get_static_method_id(long_class, 'max', '(JJ)J')
+
+  result_long = JNI::FFI.call_static_long_method(long_class, max_method, %i[long long], 1000, 2000)
+  expect_equal_values result_long, 2000
+
+  puts 'Successfully called Long.max:'
+  puts "  max(1000, 2000) = #{result_long}"
+end

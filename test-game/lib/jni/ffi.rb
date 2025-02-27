@@ -12,6 +12,7 @@ module JNI
       # def call_static_object_method(class_reference, method_id, argument_types, *args) -> Reference
       # def call_static_boolean_method(class_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
       # def call_static_int_method(class_reference, method_id, argument_types, *args) -> Integer
+      # def call_static_long_method(class_reference, method_id, argument_types, *args) -> Integer
     end
 
     class Exception < StandardError; end

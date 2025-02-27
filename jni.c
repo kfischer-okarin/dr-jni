@@ -370,6 +370,16 @@ static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
   return mrb_fixnum_value(jni_result);
 }
 
+static mrb_value jni_call_static_long_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING();
+
+  jlong jni_result = (*jni_env)->CallStaticLongMethodA(jni_env, (jclass)object, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP();
+
+  return mrb_fixnum_value(jni_result);
+}
+
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 
