@@ -304,7 +304,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   return jni_args;
 }
 
-#define CALL_METHOD_BEGINNING()\
+#define CALL_METHOD_BEGINNING\
   mrb_value object_reference;\
   mrb_value method_id_reference;\
   mrb_value argument_types_array;\
@@ -322,26 +322,26 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   \
   jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc, argument_types_array);
 
-#define CALL_METHOD_CLEANUP()\
+#define CALL_METHOD_CLEANUP\
   drb->mrb_free(mrb, jni_args);\
   handle_jni_exception(mrb);
 
 static mrb_value jni_call_static_void_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   (*jni_env)->CallStaticVoidMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return mrb_nil_value();
 }
 
 static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jobject jni_result = (*jni_env)->CallStaticObjectMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   if (jstring_equals_cstr(get_java_object_class_name(jni_result), "java.lang.String")) {
     return jstring_to_mrb_string(mrb, (jstring) jni_result);
@@ -351,61 +351,61 @@ static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jboolean jni_result = (*jni_env)->CallStaticBooleanMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return mrb_bool_value(jni_result);
 }
 
 static mrb_value jni_call_static_byte_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jbyte jni_result = (*jni_env)->CallStaticByteMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return mrb_fixnum_value(jni_result);
 }
 
 static mrb_value jni_call_static_char_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jchar jni_result = (*jni_env)->CallStaticCharMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return drb->mrb_str_new_cstr(mrb, (char *)&jni_result);
 }
 
 static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jint jni_result = (*jni_env)->CallStaticIntMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return mrb_fixnum_value(jni_result);
 }
 
 static mrb_value jni_call_static_long_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jlong jni_result = (*jni_env)->CallStaticLongMethodA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return mrb_fixnum_value(jni_result);
 }
 
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING();
+  CALL_METHOD_BEGINNING;
 
   jobject jni_result = (*jni_env)->NewObjectA(jni_env, (jclass)object, method_id, jni_args);
 
-  CALL_METHOD_CLEANUP();
+  CALL_METHOD_CLEANUP;
 
   return wrap_jni_reference_in_object(mrb, jni_result, "jobject");
 }
