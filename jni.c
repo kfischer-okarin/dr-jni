@@ -370,6 +370,16 @@ static mrb_value jni_call_static_byte_method_m(mrb_state *mrb, mrb_value self) {
   return mrb_fixnum_value(jni_result);
 }
 
+static mrb_value jni_call_static_char_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING();
+
+  jchar jni_result = (*jni_env)->CallStaticCharMethodA(jni_env, (jclass)object, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP();
+
+  return drb->mrb_str_new_cstr(mrb, (char *)&jni_result);
+}
+
 static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING();
 

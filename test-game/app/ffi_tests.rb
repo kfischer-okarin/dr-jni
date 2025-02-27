@@ -306,6 +306,21 @@ test_case 'FFI.call_static_byte_method' do
   puts "  parseByte(\"42\") = #{result}"
 end
 
+test_case 'FFI.call_static_char_method' do
+  character_class = JNI::FFI.find_class('java/lang/Character')
+  to_lower_case_method = JNI::FFI.get_static_method_id(
+    character_class,
+    'toLowerCase',
+    '(C)C'
+  )
+
+  result = JNI::FFI.call_static_char_method(character_class, to_lower_case_method, %i[char], 'A')
+  expect_equal_values result, 'a'
+
+  puts 'Successfully called Character.toLowerCase:'
+  puts "  toLowerCase('A') = #{result.inspect}"
+end
+
 test_case 'FFI.call_static_int_method' do
   integer_class = JNI::FFI.find_class('java/lang/Integer')
   compare_method = JNI::FFI.get_static_method_id(integer_class, 'compare', '(II)I')
