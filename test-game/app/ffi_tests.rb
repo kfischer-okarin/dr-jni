@@ -353,3 +353,14 @@ test_case 'FFI.call_static_long_method' do
   puts 'Successfully called Long.max:'
   puts "  max(1000, 2000) = #{result_long}"
 end
+
+test_case 'FFI.call_static_float_method' do
+  float_class = JNI::FFI.find_class('java/lang/Float')
+  parse_float_method = JNI::FFI.get_static_method_id(float_class, 'parseFloat', '(Ljava/lang/String;)F')
+
+  result = JNI::FFI.call_static_float_method(float_class, parse_float_method, %i[string], '3.14')
+  expect_equal_values result.round(2), 3.14
+
+  puts 'Successfully called Float.parseFloat:'
+  puts "  parseFloat(\"3.14\") = #{result}"
+end
