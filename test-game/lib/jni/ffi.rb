@@ -18,6 +18,7 @@ module JNI
     class ClassNotFound < Exception; end
     class NoSuchMethod < Exception; end
     class WrongArgumentType < Exception; end
+    class JavaException < Exception; end
 
     # Stores a JNI global reference internally
     # Do not use this class directly

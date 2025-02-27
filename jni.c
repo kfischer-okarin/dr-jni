@@ -123,12 +123,16 @@ static void handle_jni_exception(mrb_state *mrb) {
   jstring exception_class_name = get_java_object_class_name(exception);
   mrb_value exception_message = jstring_to_mrb_string(mrb, get_exception_message(exception));
 
-  struct RClass *exception_class = refs.jni_exception;
+  struct RClass *exception_class = drb->mrb_class_get_under(mrb, refs.jni, "JavaException");
 
   if (jstring_equals_cstr(exception_class_name, "java.lang.ClassNotFoundException")) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "ClassNotFound");
   } else if (jstring_equals_cstr(exception_class_name, "java.lang.NoSuchMethodError")) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "NoSuchMethod");
+  } else {
+    exception_message = drb->mrb_str_cat_cstr(mrb, exception_message, " (");
+    exception_message = drb->mrb_str_cat_str(mrb, exception_message, jstring_to_mrb_string(mrb, exception_class_name));
+    exception_message = drb->mrb_str_cat_cstr(mrb, exception_message, ")");
   }
 
   drb->mrb_exc_raise(mrb, drb->mrb_exc_new_str(mrb, exception_class, exception_message));
