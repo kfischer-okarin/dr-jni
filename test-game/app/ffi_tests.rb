@@ -364,3 +364,14 @@ test_case 'FFI.call_static_float_method' do
   puts 'Successfully called Float.parseFloat:'
   puts "  parseFloat(\"3.14\") = #{result}"
 end
+
+test_case 'FFI.call_static_double_method' do
+  double_class = JNI::FFI.find_class('java/lang/Double')
+  parse_double_method = JNI::FFI.get_static_method_id(double_class, 'parseDouble', '(Ljava/lang/String;)D')
+
+  result = JNI::FFI.call_static_double_method(double_class, parse_double_method, %i[string], '3.14')
+  expect_equal_values result.round(2), 3.14
+
+  puts 'Successfully called Double.parseDouble:'
+  puts "  parseDouble(\"3.14\") = #{result}"
+end

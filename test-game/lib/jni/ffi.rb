@@ -17,6 +17,7 @@ module JNI
       # def call_static_int_method(class_reference, method_id, argument_types, *args) -> Integer
       # def call_static_long_method(class_reference, method_id, argument_types, *args) -> Integer
       # def call_static_float_method(class_reference, method_id, argument_types, *args) -> Float
+      # def call_static_double_method(class_reference, method_id, argument_types, *args) -> Float
     end
 
     class Exception < StandardError; end

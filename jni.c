@@ -420,6 +420,16 @@ static mrb_value jni_call_static_float_method_m(mrb_state *mrb, mrb_value self) 
   return drb->mrb_float_value(mrb, jni_result);
 }
 
+static mrb_value jni_call_static_double_method_m(mrb_state *mrb, mrb_value self) {
+  CALL_METHOD_BEGINNING;
+
+  jdouble jni_result = (*jni_env)->CallStaticDoubleMethodA(jni_env, (jclass)object, method_id, jni_args);
+
+  CALL_METHOD_CLEANUP;
+
+  return drb->mrb_float_value(mrb, jni_result);
+}
+
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING;
 
