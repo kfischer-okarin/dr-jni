@@ -1,5 +1,6 @@
 FOR_JNI_TYPE(void)
 FOR_JNI_TYPE(object)
 FOR_JNI_TYPE(boolean)
+FOR_JNI_TYPE(byte)
 FOR_JNI_TYPE(int)
 FOR_JNI_TYPE(long)

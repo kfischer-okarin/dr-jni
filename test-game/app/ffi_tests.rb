@@ -291,6 +291,21 @@ test_case 'FFI.call_static_boolean_method' do
   puts "  parseBoolean(\"true\") = #{result}"
 end
 
+test_case 'FFI.call_static_byte_method' do
+  byte_class = JNI::FFI.find_class('java/lang/Byte')
+  parse_byte_method = JNI::FFI.get_static_method_id(
+    byte_class,
+    'parseByte',
+    '(Ljava/lang/String;)B'
+  )
+
+  result = JNI::FFI.call_static_byte_method(byte_class, parse_byte_method, %i[string], '42')
+  expect_equal_values result, 42
+
+  puts 'Successfully called Byte.parseByte:'
+  puts "  parseByte(\"42\") = #{result}"
+end
+
 test_case 'FFI.call_static_int_method' do
   integer_class = JNI::FFI.find_class('java/lang/Integer')
   compare_method = JNI::FFI.get_static_method_id(integer_class, 'compare', '(II)I')
