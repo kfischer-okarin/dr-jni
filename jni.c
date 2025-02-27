@@ -34,19 +34,21 @@ static void drb_log_writef(const char *format, ...) {
   va_end(args);
 }
 
-// ----- JNI Reference Data Type -----
-
-static const jstring java_object_to_string(jobject object) {
-  jclass class = (*jni_env)->GetObjectClass(jni_env, object);
-  jmethodID to_string_method = (*jni_env)->GetMethodID(jni_env, class, "toString", "()Ljava/lang/String;");
-  return (*jni_env)->CallObjectMethod(jni_env, object, to_string_method);
-}
+// ----- Helper Functions -----
 
 static mrb_value jstring_to_mrb_string(mrb_state *mrb, jstring jstring) {
   const char *cstr = (*jni_env)->GetStringUTFChars(jni_env, jstring, NULL);
   mrb_value result = drb->mrb_str_new_cstr(mrb, cstr);
   (*jni_env)->ReleaseStringUTFChars(jni_env, jstring, cstr);
   return result;
+}
+
+// ----- JNI Reference Data Type -----
+
+static const jstring java_object_to_string(jobject object) {
+  jclass class = (*jni_env)->GetObjectClass(jni_env, object);
+  jmethodID to_string_method = (*jni_env)->GetMethodID(jni_env, class, "toString", "()Ljava/lang/String;");
+  return (*jni_env)->CallObjectMethod(jni_env, object, to_string_method);
 }
 
 static void jni_reference_free(mrb_state *mrb, void *ptr) {
