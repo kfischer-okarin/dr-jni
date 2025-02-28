@@ -150,14 +150,16 @@ static mrb_value jni_find_class_m(mrb_state *mrb, mrb_value self) {
   return wrap_jni_reference_in_object(mrb, class, "jclass");
 }
 
-static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
+typedef jmethodID (*jni_method_id_getter_fn)(JNIEnv*, jclass, const char*, const char*);
+
+static mrb_value jni_get_method_id_with_getter(mrb_state *mrb, mrb_value self, jni_method_id_getter_fn getter_fn) {
   mrb_value class_reference;
   const char *method_name;
   const char *method_signature;
   drb->mrb_get_args(mrb, "ozz", &class_reference, &method_name, &method_signature);
 
   jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
-  jmethodID method_id = (*jni_env)->GetStaticMethodID(jni_env, class, method_name, method_signature);
+  jmethodID method_id = getter_fn(jni_env, class, method_name, method_signature);
   handle_jni_exception(mrb);
 
   mrb_value qualifier = drb->mrb_iv_get(mrb, class_reference, drb->mrb_intern_lit(mrb, "@qualifier"));
@@ -169,23 +171,12 @@ static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
   return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
 }
 
+static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
+  return jni_get_method_id_with_getter(mrb, self, (*jni_env)->GetStaticMethodID);
+}
+
 static mrb_value jni_get_method_id_m(mrb_state *mrb, mrb_value self) {
-  mrb_value class_reference;
-  const char *method_name;
-  const char *method_signature;
-  drb->mrb_get_args(mrb, "ozz", &class_reference, &method_name, &method_signature);
-
-  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
-  jmethodID method_id = (*jni_env)->GetMethodID(jni_env, class, method_name, method_signature);
-  handle_jni_exception(mrb);
-
-  mrb_value qualifier = drb->mrb_iv_get(mrb, class_reference, drb->mrb_intern_lit(mrb, "@qualifier"));
-  qualifier = drb->mrb_str_dup(mrb, qualifier); // Copy the string to avoid modifying the original
-  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, " ");
-  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_name);
-  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_signature);
-
-  return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
+  return jni_get_method_id_with_getter(mrb, self, (*jni_env)->GetMethodID);
 }
 
 static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
