@@ -87,6 +87,10 @@ static mrb_value wrap_jni_reference_in_object(mrb_state *mrb,
   return result;
 }
 
+static jobject unwrap_jni_reference_from_object(mrb_state *mrb, mrb_value object) {
+  return drb->mrb_data_check_get_ptr(mrb, object, &jni_reference_data_type);
+}
+
 // ----- JNI Reference Data Type END -----
 
 // ----- JNI Pointer Data Type -----
@@ -158,7 +162,7 @@ static mrb_value jni_get_method_id_with_getter(mrb_state *mrb, mrb_value self, j
   const char *method_signature;
   drb->mrb_get_args(mrb, "ozz", &class_reference, &method_name, &method_signature);
 
-  jclass class = drb->mrb_data_check_get_ptr(mrb, class_reference, &jni_reference_data_type);
+  jclass class = (jclass)unwrap_jni_reference_from_object(mrb, class_reference);
   jmethodID method_id = getter_fn(jni_env, class, method_name, method_signature);
   handle_jni_exception(mrb);
 
@@ -183,7 +187,7 @@ static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
   mrb_value object_reference;
   drb->mrb_get_args(mrb, "o", &object_reference);
 
-  jobject object = drb->mrb_data_check_get_ptr(mrb, object_reference, &jni_reference_data_type);
+  jobject object = unwrap_jni_reference_from_object(mrb, object_reference);
   jclass class = (*jni_env)->GetObjectClass(jni_env, object);
   handle_jni_exception(mrb);
 
@@ -268,7 +272,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
     } else if (mrb_string_p(type)) {
       // Java class type
       if (drb->mrb_obj_is_instance_of(mrb, args[i], refs.jni_reference)) {
-        jobject obj = drb->mrb_data_check_get_ptr(mrb, args[i], &jni_reference_data_type);
+        jobject obj = unwrap_jni_reference_from_object(mrb, args[i]);
         jni_args[i].l = obj;
       } else if (mrb_nil_p(args[i])) {
         jni_args[i].l = NULL;
@@ -303,7 +307,7 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   mrb_int argc;\
   drb->mrb_get_args(mrb, "ooo*", &object_reference, &method_id_reference, &argument_types_array, &args, &argc);\
   \
-  jobject object = drb->mrb_data_check_get_ptr(mrb, object_reference, &jni_reference_data_type);\
+  jobject object = unwrap_jni_reference_from_object(mrb, object_reference);\
   jmethodID method_id = (jmethodID)unwrap_jni_pointer_from_object(mrb, method_id_reference);\
   \
   if (!mrb_array_p(argument_types_array) || RARRAY_LEN(argument_types_array) != argc) {\
