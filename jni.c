@@ -225,7 +225,7 @@ static mrb_value append_to_qualifier_of(mrb_state *mrb, mrb_value qualifier_sour
 static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
   GET_ID(jmethodID method_id, GetStaticMethodID);
 
-  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 3, " static ", name, signature);
+  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 3, " static ", name, "()");
 
   return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
 }
@@ -233,7 +233,7 @@ static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
 static mrb_value jni_get_method_id_m(mrb_state *mrb, mrb_value self) {
   GET_ID(jmethodID method_id, GetMethodID);
 
-  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 3, " ", name, signature);
+  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 3, " ", name, "()");
 
   return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
 }
