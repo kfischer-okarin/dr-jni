@@ -60,6 +60,28 @@ module JNI
       @java_class = java_class
     end
 
+    def register_method(name, argument_types: [], return_type: :void)
+      signature = JNI.method_signature(argument_types, return_type)
+      java_method_name = JNI.snake_case_to_camel_case(name)
+      method_id = @ffi.get_method_id(java_class.reference, java_method_name, signature)
+
+      case return_type
+      when :string
+        define_singleton_method name do |*args|
+          @ffi.call_object_method(@reference, method_id, argument_types, *args)
+        end
+      when String
+        define_singleton_method name do |*args|
+          result_reference = @ffi.call_object_method(@reference, method_id, argument_types, *args)
+          JavaObject.new(result_reference, ffi: @ffi)
+        end
+      else
+        define_singleton_method name do |*args|
+          @ffi.send(:"call_#{return_type}_method", @reference, method_id, argument_types, *args)
+        end
+      end
+    end
+
     def register_methods(methods)
       methods.each do |name, method|
         case method[:return_type]
