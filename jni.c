@@ -532,7 +532,7 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
 
-#define FOR_JNI_TYPE(type)\
+#define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
   drb->mrb_define_class_method(mrb,\
                                refs.jni,\
                                "call_static_" #type "_method",\
