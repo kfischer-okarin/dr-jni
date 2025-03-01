@@ -373,135 +373,21 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   drb->mrb_free(mrb, jni_args);\
   handle_jni_exception(mrb);
 
-static mrb_value jni_call_static_void_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_VOID_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticVoidMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_VOID_TO_MRB_VALUE(jni_result);
+#define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
+static mrb_value jni_call_static_##type##_method_m(mrb_state *mrb, mrb_value self) {\
+  CALL_METHOD_BEGINNING;\
+  \
+  ASSIGN_JNI_##type_upper_case##_TO_VARIABLE(\
+    jni_result,\
+    (*jni_env)->CallStatic##type_pascal_case##MethodA(jni_env, (jclass)object, method_id, jni_args)\
+  );\
+  \
+  CALL_METHOD_CLEANUP;\
+  \
+  return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
 }
-
-static mrb_value jni_call_static_object_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_OBJECT_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticObjectMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_OBJECT_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_boolean_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_BOOLEAN_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticBooleanMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_BOOLEAN_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_byte_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_BYTE_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticByteMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_BYTE_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_char_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_CHAR_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticCharMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_CHAR_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_short_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_SHORT_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticShortMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_SHORT_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_int_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_INT_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticIntMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_INT_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_long_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_LONG_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticLongMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_LONG_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_float_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_FLOAT_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticFloatMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_FLOAT_TO_MRB_VALUE(jni_result);
-}
-
-static mrb_value jni_call_static_double_method_m(mrb_state *mrb, mrb_value self) {
-  CALL_METHOD_BEGINNING;
-
-  ASSIGN_JNI_DOUBLE_TO_VARIABLE(
-    jni_result,
-    (*jni_env)->CallStaticDoubleMethodA(jni_env, (jclass)object, method_id, jni_args)
-  );
-
-  CALL_METHOD_CLEANUP;
-
-  return CONVERT_JNI_DOUBLE_TO_MRB_VALUE(jni_result);
-}
+#include "define_for_jni_types.c.inc"
+#undef FOR_JNI_TYPE
 
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING;
