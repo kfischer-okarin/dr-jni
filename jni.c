@@ -428,25 +428,25 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   MRB_SET_INSTANCE_TT(refs.jni_reference, MRB_TT_DATA);
 
   drb->mrb_define_class_method(mrb, refs.jni, "find_class", jni_find_class_m, MRB_ARGS_REQ(1));
+  drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(3) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb, refs.jni, "get_object_class", jni_get_object_class_m, MRB_ARGS_REQ(1));
-  drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
 
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
   drb->mrb_define_class_method(mrb,\
                                refs.jni,\
-                               "call_static_" #type "_method",\
-                               jni_call_static_ ## type ## _method_m,\
+                               "call_" #type "_method",\
+                               jni_call_ ## type ## _method_m,\
                                MRB_ARGS_REQ(3) | MRB_ARGS_REST());\
   drb->mrb_define_class_method(mrb,\
                                refs.jni,\
-                               "call_" #type "_method",\
-                               jni_call_ ## type ## _method_m,\
+                               "call_static_" #type "_method",\
+                               jni_call_static_ ## type ## _method_m,\
                                MRB_ARGS_REQ(3) | MRB_ARGS_REST());
 #include "define_for_jni_types.c.inc"
 #undef FOR_JNI_TYPE
 
-  drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(3) | MRB_ARGS_REST());
 
   jobject activity = (jobject) drb->drb_android_get_sdl_activity();
   drb->mrb_iv_set(mrb,
