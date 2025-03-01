@@ -27,6 +27,10 @@ module JNI
       elsif type.is_a? String
         type_with_slashes = type.gsub('.', '/')
         "L#{type_with_slashes};"
+      elsif type.is_a? Array
+        raise 'Invalid array type' unless type.size == 1
+
+        "[#{type_signature(type.first)}"
       else
         raise "Unknown type: #{type}"
       end
