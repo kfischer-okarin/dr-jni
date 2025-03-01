@@ -496,6 +496,14 @@ static mrb_value jni_get_static_##type##_field_m(mrb_state *mrb, mrb_value self)
   );\
   \
   return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
+}\
+\
+static mrb_value jni_set_static_##type##_field_m(mrb_state *mrb, mrb_value self) {\
+  SET_FIELD_BEGINNING;\
+  \
+  (*jni_env)->SetStatic##type_pascal_case##Field(jni_env, (jclass)object, field_id, CONVERT_MRB_VALUE_TO_JNI_##type_upper_case(value));\
+  \
+  return mrb_nil_value();\
 }
 
 #include "define_for_jni_types_without_void.c.inc"
@@ -537,7 +545,8 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
   drb->mrb_define_class_method(mrb, refs.jni, "get_" #type "_field", jni_get_ ## type ## _field_m, MRB_ARGS_REQ(2));\
   drb->mrb_define_class_method(mrb, refs.jni, "set_" #type "_field", jni_set_ ## type ## _field_m, MRB_ARGS_REQ(3));\
-  drb->mrb_define_class_method(mrb, refs.jni, "get_static_" #type "_field", jni_get_static_ ## type ## _field_m, MRB_ARGS_REQ(2));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_static_" #type "_field", jni_get_static_ ## type ## _field_m, MRB_ARGS_REQ(2));\
+  drb->mrb_define_class_method(mrb, refs.jni, "set_static_" #type "_field", jni_set_static_ ## type ## _field_m, MRB_ARGS_REQ(3));
 
 #include "define_for_jni_types_without_void.c.inc"
 
