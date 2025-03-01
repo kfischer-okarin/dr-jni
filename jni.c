@@ -293,7 +293,6 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
     drb->mrb_free(mrb, jni_args);
     struct RClass *exception_class = drb->mrb_class_get_under(mrb, refs.jni, "WrongArgumentType");
     drb->mrb_raisef(mrb, exception_class, "Argument %d: %s", error_argument_index + 1, error_message);
-    return NULL;
   }
 
   return jni_args;
@@ -312,7 +311,6 @@ static jvalue *convert_mrb_args_to_jni_args(mrb_state *mrb,
   \
   if (!mrb_array_p(argument_types_array) || RARRAY_LEN(argument_types_array) != argc) {\
     drb->mrb_raise(mrb, refs.jni_exception, "argument_types must be an array with the same length as args");\
-    return mrb_nil_value();\
   }\
   \
   jvalue *jni_args = convert_mrb_args_to_jni_args(mrb, args, argc, argument_types_array);
