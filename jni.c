@@ -418,7 +418,9 @@ static mrb_value jni_call_##type##_method_m(mrb_state *mrb, mrb_value self) {\
   \
   return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
 }
-#include "define_for_jni_types.c.inc"
+
+#include "define_for_jni_types_with_void.c.inc"
+
 #undef FOR_JNI_TYPE
 
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
@@ -464,7 +466,9 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
                                "call_static_" #type "_method",\
                                jni_call_static_ ## type ## _method_m,\
                                MRB_ARGS_REQ(3) | MRB_ARGS_REST());
-#include "define_for_jni_types.c.inc"
+
+#include "define_for_jni_types_with_void.c.inc"
+
 #undef FOR_JNI_TYPE
 
 

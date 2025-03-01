@@ -1,4 +1,3 @@
-FOR_JNI_TYPE(void, Void, VOID)
 FOR_JNI_TYPE(object, Object, OBJECT)
 FOR_JNI_TYPE(boolean, Boolean, BOOLEAN)
 FOR_JNI_TYPE(byte, Byte, BYTE)
