@@ -151,6 +151,7 @@ static void handle_jni_exception(mrb_state *mrb) {
 
 #define ASSIGN_JNI_OBJECT_TO_VARIABLE(varname, value) jobject varname = value
 #define CONVERT_JNI_OBJECT_TO_MRB_VALUE(varname) convert_jni_object_to_mrb_value(mrb, varname)
+#define CONVERT_MRB_VALUE_TO_JNI_OBJECT(varname) convert_mrb_value_to_jni_object(mrb, varname)
 
 static mrb_value convert_jni_object_to_mrb_value(mrb_state *mrb, jobject value) {
   if (value == NULL) {
@@ -165,29 +166,54 @@ static mrb_value convert_jni_object_to_mrb_value(mrb_state *mrb, jobject value) 
   return wrap_jni_reference_in_object(mrb, value, "jobject");
 }
 
+static jobject convert_mrb_value_to_jni_object(mrb_state *mrb, mrb_value value) {
+  if (mrb_nil_p(value)) {
+    return NULL;
+  }
+
+  if (mrb_string_p(value)) {
+    return (*jni_env)->NewStringUTF(jni_env, drb->mrb_string_value_cstr(mrb, &value));
+  }
+
+  if (drb->mrb_obj_is_instance_of(mrb, value, refs.jni_reference)) {
+    return unwrap_jni_reference_from_object(mrb, value);
+  }
+
+  drb->mrb_raise(mrb, refs.jni_exception, "Unknown type");
+  return NULL;
+}
+
 #define ASSIGN_JNI_BOOLEAN_TO_VARIABLE(varname, value) jboolean varname = value
 #define CONVERT_JNI_BOOLEAN_TO_MRB_VALUE(varname) mrb_bool_value(varname)
+#define CONVERT_MRB_VALUE_TO_JNI_BOOLEAN(varname) mrb_bool(varname)
 
 #define ASSIGN_JNI_BYTE_TO_VARIABLE(varname, value) jbyte varname = value
 #define CONVERT_JNI_BYTE_TO_MRB_VALUE(varname) mrb_fixnum_value(varname)
+#define CONVERT_MRB_VALUE_TO_JNI_BYTE(varname) mrb_integer(varname)
 
 #define ASSIGN_JNI_CHAR_TO_VARIABLE(varname, value) jchar varname = value
 #define CONVERT_JNI_CHAR_TO_MRB_VALUE(varname) drb->mrb_str_new_cstr(mrb, (char *)&varname)
+#define CONVERT_MRB_VALUE_TO_JNI_CHAR(varname) RSTRING_PTR(varname)[0]
 
 #define ASSIGN_JNI_SHORT_TO_VARIABLE(varname, value) jshort varname = value
 #define CONVERT_JNI_SHORT_TO_MRB_VALUE(varname) mrb_fixnum_value(varname)
+#define CONVERT_MRB_VALUE_TO_JNI_SHORT(varname) mrb_integer(varname)
 
 #define ASSIGN_JNI_INT_TO_VARIABLE(varname, value) jint varname = value
 #define CONVERT_JNI_INT_TO_MRB_VALUE(varname) mrb_fixnum_value(varname)
+#define CONVERT_MRB_VALUE_TO_JNI_INT(varname) mrb_integer(varname)
 
 #define ASSIGN_JNI_LONG_TO_VARIABLE(varname, value) jlong varname = value
 #define CONVERT_JNI_LONG_TO_MRB_VALUE(varname) mrb_fixnum_value(varname)
+#define CONVERT_MRB_VALUE_TO_JNI_LONG(varname) mrb_integer(varname)
 
 #define ASSIGN_JNI_FLOAT_TO_VARIABLE(varname, value) jfloat varname = value
 #define CONVERT_JNI_FLOAT_TO_MRB_VALUE(varname) drb->mrb_float_value(mrb, varname)
+#define CONVERT_MRB_VALUE_TO_JNI_FLOAT(varname) mrb_float(varname)
 
 #define ASSIGN_JNI_DOUBLE_TO_VARIABLE(varname, value) jdouble varname = value
 #define CONVERT_JNI_DOUBLE_TO_MRB_VALUE(varname) drb->mrb_float_value(mrb, varname)
+#define CONVERT_MRB_VALUE_TO_JNI_DOUBLE(varname) mrb_float(varname)
 
 // ----- JNI Methods -----
 
@@ -431,6 +457,16 @@ static mrb_value jni_call_##type##_method_m(mrb_state *mrb, mrb_value self) {\
   jobject object = unwrap_jni_reference_from_object(mrb, object_reference);\
   jfieldID field_id = (jfieldID)unwrap_jni_pointer_from_object(mrb, field_id_reference);
 
+#define SET_FIELD_BEGINNING\
+  mrb_value object_reference;\
+  mrb_value field_id_reference;\
+  mrb_value value;\
+  drb->mrb_get_args(mrb, "ooo", &object_reference, &field_id_reference, &value);\
+  \
+  jobject object = unwrap_jni_reference_from_object(mrb, object_reference);\
+  jfieldID field_id = (jfieldID)unwrap_jni_pointer_from_object(mrb, field_id_reference);\
+  handle_jni_exception(mrb);
+
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
 static mrb_value jni_get_##type##_field_m(mrb_state *mrb, mrb_value self) {\
   GET_FIELD_BEGINNING;\
@@ -441,6 +477,14 @@ static mrb_value jni_get_##type##_field_m(mrb_state *mrb, mrb_value self) {\
   );\
   \
   return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
+}\
+\
+static mrb_value jni_set_##type##_field_m(mrb_state *mrb, mrb_value self) {\
+  SET_FIELD_BEGINNING;\
+  \
+  (*jni_env)->Set##type_pascal_case##Field(jni_env, object, field_id, CONVERT_MRB_VALUE_TO_JNI_##type_upper_case(value));\
+  \
+  return mrb_nil_value();\
 }
 
 #include "define_for_jni_types_without_void.c.inc"
@@ -480,7 +524,8 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
 
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
-  drb->mrb_define_class_method(mrb, refs.jni, "get_" #type "_field", jni_get_ ## type ## _field_m, MRB_ARGS_REQ(2));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_" #type "_field", jni_get_ ## type ## _field_m, MRB_ARGS_REQ(2));\
+  drb->mrb_define_class_method(mrb, refs.jni, "set_" #type "_field", jni_set_ ## type ## _field_m, MRB_ARGS_REQ(3));
 
 #include "define_for_jni_types_without_void.c.inc"
 

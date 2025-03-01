@@ -407,3 +407,14 @@ test_case 'FFI.get_..._field' do
   count = JNI::FFI.get_int_field(string_object, field_id)
   expect_equal_values count, 0
 end
+
+test_case 'FFI.set_..._field' do
+  string_class = JNI::FFI.find_class('java/lang/String')
+  constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')
+  string_object = JNI::FFI.new_object(string_class, constructor_method, [])
+
+  field_id = JNI::FFI.get_field_id(string_class, 'count', 'I')
+  JNI::FFI.set_int_field(string_object, field_id, 42)
+  count = JNI::FFI.get_int_field(string_object, field_id)
+  expect_equal_values count, 42
+end

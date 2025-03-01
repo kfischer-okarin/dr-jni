@@ -21,10 +21,17 @@ module JNI
       # def get_long_field(object_reference, field_id) -> Integer
       # def get_float_field(object_reference, field_id) -> Float
       # def get_double_field(object_reference, field_id) -> Float
+      # def set_object_field(object_reference, field_id, value)
+      # def set_boolean_field(object_reference, field_id, value)
+      # def set_byte_field(object_reference, field_id, value)
+      # def set_char_field(object_reference, field_id, value)
+      # def set_short_field(object_reference, field_id, value)
+      # def set_int_field(object_reference, field_id, value)
+      # def set_long_field(object_reference, field_id, value)
 
       # Calling Instance Methods
       # def get_method_id(object_reference, name, signature) -> Pointer
-      # def call_void_method(object_reference, method_id, argument_types, *args) -> nil
+      # def call_void_method(object_reference, method_id, argument_types, *args)
       # def call_object_method(object_reference, method_id, argument_types, *args) -> Reference
       # def call_boolean_method(object_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
       # def call_byte_method(object_reference, method_id, argument_types, *args) -> Integer
@@ -40,7 +47,7 @@ module JNI
 
       # Calling Static Methods
       # def get_static_method_id(class_reference, name, signature) -> Pointer
-      # def call_static_void_method(class_reference, method_id, argument_types, *args) -> nil
+      # def call_static_void_method(class_reference, method_id, argument_types, *args)
       # def call_static_object_method(class_reference, method_id, argument_types, *args) -> Reference
       # def call_static_boolean_method(class_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
       # def call_static_byte_method(class_reference, method_id, argument_types, *args) -> Integer
