@@ -166,7 +166,7 @@ static mrb_value jni_get_static_method_id_m(mrb_state *mrb, mrb_value self) {
 
   mrb_value qualifier = drb->mrb_iv_get(mrb, class_reference, drb->mrb_intern_lit(mrb, "@qualifier"));
   qualifier = drb->mrb_str_dup(mrb, qualifier); // Copy the string to avoid modifying the original
-  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, " ");
+  qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, " static ");
   qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_name);
   qualifier = drb->mrb_str_cat_cstr(mrb, qualifier, method_signature);
 
