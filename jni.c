@@ -423,6 +423,30 @@ static mrb_value jni_call_##type##_method_m(mrb_state *mrb, mrb_value self) {\
 
 #undef FOR_JNI_TYPE
 
+#define GET_FIELD_BEGINNING\
+  mrb_value object_reference;\
+  mrb_value field_id_reference;\
+  drb->mrb_get_args(mrb, "oo", &object_reference, &field_id_reference);\
+  \
+  jobject object = unwrap_jni_reference_from_object(mrb, object_reference);\
+  jfieldID field_id = (jfieldID)unwrap_jni_pointer_from_object(mrb, field_id_reference);
+
+#define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
+static mrb_value jni_get_##type##_field_m(mrb_state *mrb, mrb_value self) {\
+  GET_FIELD_BEGINNING;\
+  \
+  ASSIGN_JNI_##type_upper_case##_TO_VARIABLE(\
+    jni_result,\
+    (*jni_env)->Get##type_pascal_case##Field(jni_env, object, field_id)\
+  );\
+  \
+  return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
+}
+
+#include "define_for_jni_types_without_void.c.inc"
+
+#undef FOR_JNI_TYPE
+
 static mrb_value jni_new_object_m(mrb_state *mrb, mrb_value self) {
   CALL_METHOD_BEGINNING;
 
@@ -454,6 +478,13 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_field_id", jni_get_static_field_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
+
+#define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
+  drb->mrb_define_class_method(mrb, refs.jni, "get_" #type "_field", jni_get_ ## type ## _field_m, MRB_ARGS_REQ(2));
+
+#include "define_for_jni_types_without_void.c.inc"
+
+#undef FOR_JNI_TYPE
 
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\
   drb->mrb_define_class_method(mrb,\

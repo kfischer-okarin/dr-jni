@@ -397,3 +397,13 @@ test_case 'FFI.call_static_double_method' do
   puts 'Successfully called Double.parseDouble:'
   puts "  parseDouble(\"3.14\") = #{result}"
 end
+
+test_case 'FFI.get_..._field' do
+  string_class = JNI::FFI.find_class('java/lang/String')
+  constructor_method = JNI::FFI.get_method_id(string_class, '<init>', '()V')
+  string_object = JNI::FFI.new_object(string_class, constructor_method, [])
+
+  field_id = JNI::FFI.get_field_id(string_class, 'count', 'I')
+  count = JNI::FFI.get_int_field(string_object, field_id)
+  expect_equal_values count, 0
+end
