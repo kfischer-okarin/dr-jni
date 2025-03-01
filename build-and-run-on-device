@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # This assumes that dr-jni is a sibling directory to dr-android-tools inside a dragonruby directory.
 cd $(dirname $0)/..
 
