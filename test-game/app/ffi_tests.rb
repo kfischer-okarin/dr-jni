@@ -418,3 +418,10 @@ test_case 'FFI.set_..._field' do
   count = JNI::FFI.get_int_field(string_object, field_id)
   expect_equal_values count, 42
 end
+
+test_case 'FFI.get_static_..._field' do
+  system_class = JNI::FFI.find_class('java/lang/System')
+  out_field = JNI::FFI.get_static_field_id(system_class, 'out', 'Ljava/io/PrintStream;')
+  out_object = JNI::FFI.get_static_object_field(system_class, out_field)
+  puts "Out object: #{out_object.inspect}"
+end

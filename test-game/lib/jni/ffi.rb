@@ -44,6 +44,15 @@ module JNI
 
       # Accessing Static Fields
       # def get_static_field_id(class_reference, name, signature) -> Pointer
+      # def get_static_object_field(class_reference, field_id) -> Reference
+      # def get_static_boolean_field(class_reference, field_id) -> TrueClass/FalseClass
+      # def get_static_byte_field(class_reference, field_id) -> Integer
+      # def get_static_char_field(class_reference, field_id) -> String
+      # def get_static_short_field(class_reference, field_id) -> Integer
+      # def get_static_int_field(class_reference, field_id) -> Integer
+      # def get_static_long_field(class_reference, field_id) -> Integer
+      # def get_static_float_field(class_reference, field_id) -> Float
+      # def get_static_double_field(class_reference, field_id) -> Float
 
       # Calling Static Methods
       # def get_static_method_id(class_reference, name, signature) -> Pointer
