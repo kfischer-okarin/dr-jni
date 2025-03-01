@@ -60,6 +60,22 @@ module JNI
       @java_class = java_class
     end
 
+    def register_methods(methods)
+      methods.each do |name, method|
+        case method[:return_type]
+        when String
+          define_singleton_method name do |*args|
+            result = @ffi.send(method[:ffi_method_name], @reference, method[:method_id], method[:argument_types], *args)
+            JavaObject.new(result, ffi: @ffi)
+          end
+        else
+          define_singleton_method name do |*args|
+            @ffi.send(method[:ffi_method_name], @reference, method[:method_id], method[:argument_types], *args)
+          end
+        end
+      end
+    end
+
     def java_class
       @java_class ||= JavaClass.new(@ffi.get_object_class(reference), ffi: @ffi)
     end
@@ -82,11 +98,12 @@ module JNI
     def initialize(reference, ffi: FFI)
       @reference = reference
       @ffi = ffi
+      @methods = {}
       @constructor_by_argument_count = {}
     end
 
     def register(&block)
-      RegisterDSL.new(self, @constructor_by_argument_count, @ffi).instance_eval(&block)
+      RegisterDSL.new(self, @methods, @constructor_by_argument_count, @ffi).instance_eval(&block)
     end
 
     def build_new_instance(*args)
@@ -94,7 +111,9 @@ module JNI
       raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless constructor
 
       reference = @ffi.new_object(@reference, constructor[:method_id], constructor[:argument_types], *args)
-      JavaObject.new(reference, ffi: @ffi, java_class: self)
+      instance = JavaObject.new(reference, ffi: @ffi, java_class: self)
+      instance.register_methods(@methods)
+      instance
     end
 
     def name
@@ -107,10 +126,24 @@ module JNI
     end
 
     class RegisterDSL
-      def initialize(java_class, constructor_by_argument_count, ffi )
+      def initialize(java_class, methods, constructor_by_argument_count, ffi)
         @java_class = java_class
+        @methods = methods
         @constructor_by_argument_count = constructor_by_argument_count
         @ffi = ffi
+      end
+
+      def method(name, argument_types: [], return_type: :void)
+        signature = JNI.method_signature(argument_types, return_type)
+        java_method_name = JNI.snake_case_to_camel_case(name)
+        method_id = @ffi.get_method_id(@java_class.reference, java_method_name, signature)
+        ffi_method_name = case return_type
+                          when :string, String
+                            :call_object_method
+                          else
+                            :"call_#{return_type}_method"
+                          end
+        @methods[name] = { method_id: method_id, argument_types: argument_types, return_type: return_type, ffi_method_name: ffi_method_name }
       end
 
       def constructor(argument_types: [])
