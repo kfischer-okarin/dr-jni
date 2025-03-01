@@ -6,6 +6,7 @@ module JNI
       # def find_class(name) -> Reference
       # def new_object(class_reference, method_id, argument_types, *args) -> Reference
       # def get_object_class(object_reference) -> Reference
+      # def get_field_id(object_reference, name, signature) -> Pointer
       # def get_method_id(object_reference, name, signature) -> Pointer
       # def call_void_method(object_reference, method_id, argument_types, *args) -> nil
       # def call_object_method(object_reference, method_id, argument_types, *args) -> Reference
@@ -17,6 +18,7 @@ module JNI
       # def call_long_method(object_reference, method_id, argument_types, *args) -> Integer
       # def call_float_method(object_reference, method_id, argument_types, *args) -> Float
       # def call_double_method(object_reference, method_id, argument_types, *args) -> Float
+      # def get_static_field_id(class_reference, name, signature) -> Pointer
       # def get_static_method_id(class_reference, name, signature) -> Pointer
       # def call_static_void_method(class_reference, method_id, argument_types, *args) -> nil
       # def call_static...
@@ -24,6 +26,7 @@ module JNI
 
     class Exception < StandardError; end
     class ClassNotFound < Exception; end
+    class NoSuchField < Exception; end
     class NoSuchMethod < Exception; end
     class WrongArgumentType < Exception; end
     class JavaException < Exception; end

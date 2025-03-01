@@ -133,6 +133,8 @@ static void handle_jni_exception(mrb_state *mrb) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "ClassNotFound");
   } else if (jstring_equals_cstr(exception_class_name, "java.lang.NoSuchMethodError")) {
     exception_class = drb->mrb_class_get_under(mrb, refs.jni, "NoSuchMethod");
+  } else if (jstring_equals_cstr(exception_class_name, "java.lang.NoSuchFieldError")) {
+    exception_class = drb->mrb_class_get_under(mrb, refs.jni, "NoSuchField");
   } else {
     exception_message = drb->mrb_str_cat_cstr(mrb, exception_message, " (");
     exception_message = drb->mrb_str_cat_str(mrb, exception_message, jstring_to_mrb_string(mrb, exception_class_name));
@@ -236,6 +238,22 @@ static mrb_value jni_get_method_id_m(mrb_state *mrb, mrb_value self) {
   mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 3, " ", name, "()");
 
   return wrap_jni_pointer_in_object(mrb, method_id, "jmethodID", qualifier);
+}
+
+static mrb_value jni_get_field_id_m(mrb_state *mrb, mrb_value self) {
+  GET_ID(jfieldID field_id, GetFieldID);
+
+  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 2, " ", name);
+
+  return wrap_jni_pointer_in_object(mrb, field_id, "jfieldID", qualifier);
+}
+
+static mrb_value jni_get_static_field_id_m(mrb_state *mrb, mrb_value self) {
+  GET_ID(jfieldID field_id, GetStaticFieldID);
+
+  mrb_value qualifier = append_to_qualifier_of(mrb, class_reference, 2, " static ", name);
+
+  return wrap_jni_pointer_in_object(mrb, field_id, "jfieldID", qualifier);
 }
 
 static mrb_value jni_get_object_class_m(mrb_state *mrb, mrb_value self) {
@@ -430,7 +448,9 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
   drb->mrb_define_class_method(mrb, refs.jni, "find_class", jni_find_class_m, MRB_ARGS_REQ(1));
   drb->mrb_define_class_method(mrb, refs.jni, "new_object", jni_new_object_m, MRB_ARGS_REQ(3) | MRB_ARGS_REST());
   drb->mrb_define_class_method(mrb, refs.jni, "get_object_class", jni_get_object_class_m, MRB_ARGS_REQ(1));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_field_id", jni_get_field_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_method_id", jni_get_method_id_m, MRB_ARGS_REQ(3));
+  drb->mrb_define_class_method(mrb, refs.jni, "get_static_field_id", jni_get_static_field_id_m, MRB_ARGS_REQ(3));
   drb->mrb_define_class_method(mrb, refs.jni, "get_static_method_id", jni_get_static_method_id_m, MRB_ARGS_REQ(3));
 
 #define FOR_JNI_TYPE(type, type_pascal_case, type_upper_case)\

@@ -31,6 +31,28 @@ test_case 'FFI.get_method_id' do
   end
 end
 
+test_case 'FFI.get_field_id' do
+  string_class = JNI::FFI.find_class('java/lang/String')
+
+  count_field = JNI::FFI.get_field_id(string_class, 'count', 'I')
+  puts "Found count field: #{count_field.inspect}"
+
+  expect_exception(JNI::FFI::NoSuchField) do
+    JNI::FFI.get_field_id(string_class, 'nonExistentField', 'I')
+  end
+end
+
+test_case 'FFI.get_static_field_id' do
+  system_class = JNI::FFI.find_class('java/lang/System')
+
+  out_field = JNI::FFI.get_static_field_id(system_class, 'out', 'Ljava/io/PrintStream;')
+  puts "Found out field: #{out_field.inspect}"
+
+  expect_exception(JNI::FFI::NoSuchField) do
+    JNI::FFI.get_static_field_id(system_class, 'nonExistentField', 'Ljava/io/PrintStream;')
+  end
+end
+
 def test_parameters(valid_examples:, invalid_examples:, &block)
   valid_examples.each do |example|
     puts "Testing valid example: #{example.inspect}"
