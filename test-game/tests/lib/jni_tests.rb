@@ -50,7 +50,9 @@ module JNI
       class_reference = { qualifier: 'class com.example.MyClass' }
       java_class = JavaClass.new(class_reference, ffi: ffi)
 
-      java_class.register_constructor(argument_types: %i[])
+      java_class.register do
+        constructor argument_types: []
+      end
       assert.received_call! ffi, :get_method_id, [class_reference, '<init>', '()V']
 
       instance = java_class.build_new_instance
@@ -71,7 +73,9 @@ module JNI
       class_reference = { qualifier: 'class com.example.MyClass' }
       java_class = JavaClass.new(class_reference, ffi: ffi)
 
-      java_class.register_static_method(:my_method, argument_types: %i[int boolean], return_type: :boolean)
+      java_class.register do
+        static_method :my_method, argument_types: %i[int boolean], return_type: :boolean
+      end
 
       assert.received_call! ffi, :get_static_method_id, [class_reference, 'myMethod', '(IZ)Z']
 
@@ -94,7 +98,9 @@ module JNI
       class_reference = { qualifier: 'class com.example.MyClass' }
       java_class = JavaClass.new(class_reference, ffi: ffi)
 
-      java_class.register_static_method(:my_method, argument_types: %i[int], return_type: :string)
+      java_class.register do
+        static_method :my_method, argument_types: %i[int], return_type: :string
+      end
 
       assert.received_call! ffi, :get_static_method_id, [class_reference, 'myMethod', '(I)Ljava/lang/String;']
 
@@ -117,7 +123,9 @@ module JNI
       class_reference = { qualifier: 'class com.example.MyClass' }
       java_class = JavaClass.new(class_reference, ffi: ffi)
 
-      java_class.register_static_method(:my_method, argument_types: %i[int], return_type: 'java.lang.Integer')
+      java_class.register do
+        static_method :my_method, argument_types: %i[int], return_type: 'java.lang.Integer'
+      end
 
       assert.received_call! ffi, :get_static_method_id, [class_reference, 'myMethod', '(I)Ljava/lang/Integer;']
 

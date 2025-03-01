@@ -6,8 +6,9 @@ module JNI
       @game_activity ||= JavaObject.new(FFI.game_activity_reference)
     end
 
-    def get_class(name)
-      JavaClass.new(FFI.find_class(name.gsub('.', '/')))
+    def [](java_class_name)
+      @classes ||= {}
+      @classes[java_class_name] ||= JavaClass.new(FFI.find_class(java_class_name.gsub('.', '/')))
     end
 
     def snake_case_to_camel_case(snake_case)
@@ -84,43 +85,16 @@ module JNI
       @constructor_by_argument_count = {}
     end
 
+    def register(&block)
+      RegisterDSL.new(self, @constructor_by_argument_count, @ffi).instance_eval(&block)
+    end
+
     def build_new_instance(*args)
       constructor = @constructor_by_argument_count[args.size]
       raise NoSuchMethod, "No constructor for #{inspect} with #{args.size} arguments" unless constructor
 
       reference = @ffi.new_object(@reference, constructor[:method_id], constructor[:argument_types], *args)
       JavaObject.new(reference, ffi: @ffi, java_class: self)
-    end
-
-    def register_constructor(argument_types: [])
-      signature = JNI.method_signature(argument_types, :void)
-      method_id = @ffi.get_method_id(@reference, '<init>', signature)
-      @constructor_by_argument_count[argument_types.size] = {
-        method_id: method_id,
-        argument_types: argument_types
-      }
-    end
-
-    def register_static_method(name, argument_types: [], return_type: :void)
-      method_name = JNI.snake_case_to_camel_case(name)
-      signature = JNI.method_signature(argument_types, return_type)
-      method_id = @ffi.get_static_method_id(@reference, method_name, signature)
-
-      case return_type
-      when :boolean
-        define_singleton_method name do |*args|
-          @ffi.call_static_boolean_method(@reference, method_id, argument_types, *args)
-        end
-      when :string
-        define_singleton_method name do |*args|
-          @ffi.call_static_object_method(@reference, method_id, argument_types, *args)
-        end
-      when String
-        define_singleton_method name do |*args|
-          result_reference = @ffi.call_static_object_method(@reference, method_id, argument_types, *args)
-          JavaObject.new(result_reference, ffi: @ffi)
-        end
-      end
     end
 
     def name
@@ -130,6 +104,52 @@ module JNI
 
     def inspect
       "#<#{self.class} #{name}>"
+    end
+
+    class RegisterDSL
+      def initialize(java_class, constructor_by_argument_count, ffi )
+        @java_class = java_class
+        @constructor_by_argument_count = constructor_by_argument_count
+        @ffi = ffi
+      end
+
+      def constructor(argument_types: [])
+        signature = JNI.method_signature(argument_types, :void)
+        method_id = @ffi.get_method_id(@java_class.reference, '<init>', signature)
+        @constructor_by_argument_count[argument_types.size] = {
+          method_id: method_id,
+          argument_types: argument_types
+        }
+      end
+
+      def static_method(name, argument_types: [], return_type: :void)
+        reference = @java_class.reference
+        method_name = JNI.snake_case_to_camel_case(name)
+        signature = JNI.method_signature(argument_types, return_type)
+        method_id = @ffi.get_static_method_id(@java_class.reference, method_name, signature)
+
+        %i[boolean byte char short int long float double].each do |type|
+          if type == return_type
+            method_name = "call_static_#{type}_method"
+            @java_class.define_singleton_method name do |*args|
+              @ffi.send(method_name, reference, method_id, argument_types, *args)
+            end
+            return
+          end
+        end
+
+        case return_type
+        when :string
+          @java_class.define_singleton_method name do |*args|
+            @ffi.call_static_object_method(reference, method_id, argument_types, *args)
+          end
+        when String
+          @java_class.define_singleton_method name do |*args|
+            result_reference = @ffi.call_static_object_method(reference, method_id, argument_types, *args)
+            JavaObject.new(result_reference, ffi: @ffi)
+          end
+        end
+      end
     end
   end
 end

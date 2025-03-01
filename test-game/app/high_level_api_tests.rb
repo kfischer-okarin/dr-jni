@@ -8,24 +8,27 @@ test_case 'Access Game Activity' do
 end
 
 test_case 'Calling static methods' do
-  boolean_class = JNI.get_class 'java.lang.Boolean'
-  boolean_class.register_static_method :parse_boolean,
-                                       argument_types: [:string],
-                                       return_type: :boolean
-  result = boolean_class.parse_boolean 'true'
+  JNI['java.lang.Boolean'].register do
+    static_method :parse_boolean,
+                   argument_types: [:string],
+                   return_type: :boolean
+  end
+  result = JNI['java.lang.Boolean'].parse_boolean 'true'
   expect_equal_values result, true
 
-  integer_class = JNI.get_class 'java.lang.Integer'
-  integer_class.register_static_method :value_of,
-                                       argument_types: [:int],
-                                       return_type: 'java.lang.Integer'
-  result = integer_class.value_of 42
+  JNI['java.lang.Integer'].register do
+    static_method :value_of,
+                   argument_types: [:int],
+                   return_type: 'java.lang.Integer'
+  end
+  result = JNI['java.lang.Integer'].value_of 42
   expect_equal_values result.java_class.name, 'java.lang.Integer'
 end
 
 test_case 'Building object instances' do
-  url_class = JNI.get_class 'java.net.URL'
-  url_class.register_constructor argument_types: [:string]
-  instance = url_class.build_new_instance 'https://echo.free.beeceptor.com'
+  JNI['java.net.URL'].register do
+    constructor argument_types: [:string]
+  end
+  instance = JNI['java.net.URL'].build_new_instance 'https://echo.free.beeceptor.com'
   expect_equal_values instance.java_class.name, 'java.net.URL'
 end
