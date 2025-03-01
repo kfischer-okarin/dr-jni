@@ -157,9 +157,9 @@ module JNI
 
       def static_method(name, argument_types: [], return_type: :void)
         reference = @java_class.reference
-        method_name = JNI.snake_case_to_camel_case(name)
+        java_method_name = JNI.snake_case_to_camel_case(name)
         signature = JNI.method_signature(argument_types, return_type)
-        method_id = @ffi.get_static_method_id(@java_class.reference, method_name, signature)
+        method_id = @ffi.get_static_method_id(reference, java_method_name, signature)
 
         %i[boolean byte char short int long float double].each do |type|
           if type == return_type
