@@ -4,10 +4,9 @@ module JNI
       attr_reader :game_activity_reference
 
       # def find_class(name) -> Reference
-      # def get_static_method_id(class_reference, name, signature)
-      # def get_method_id(object_reference, name, signature)
-      # def get_object_class(object_reference) -> Reference
       # def new_object(class_reference, method_id, argument_types, *args) -> Reference
+      # def get_object_class(object_reference) -> Reference
+      # def get_method_id(object_reference, name, signature) -> Pointer
       # def call_void_method(object_reference, method_id, argument_types, *args) -> nil
       # def call_object_method(object_reference, method_id, argument_types, *args) -> Reference
       # def call_boolean_method(object_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
@@ -18,6 +17,7 @@ module JNI
       # def call_long_method(object_reference, method_id, argument_types, *args) -> Integer
       # def call_float_method(object_reference, method_id, argument_types, *args) -> Float
       # def call_double_method(object_reference, method_id, argument_types, *args) -> Float
+      # def get_static_method_id(class_reference, name, signature) -> Pointer
       # def call_static_void_method(class_reference, method_id, argument_types, *args) -> nil
       # def call_static...
     end
