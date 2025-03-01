@@ -8,16 +8,18 @@ module JNI
       # def get_method_id(object_reference, name, signature)
       # def get_object_class(object_reference) -> Reference
       # def new_object(class_reference, method_id, argument_types, *args) -> Reference
+      # def call_void_method(object_reference, method_id, argument_types, *args) -> nil
+      # def call_object_method(object_reference, method_id, argument_types, *args) -> Reference
+      # def call_boolean_method(object_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
+      # def call_byte_method(object_reference, method_id, argument_types, *args) -> Integer
+      # def call_char_method(object_reference, method_id, argument_types, *args) -> String
+      # def call_short_method(object_reference, method_id, argument_types, *args) -> Integer
+      # def call_int_method(object_reference, method_id, argument_types, *args) -> Integer
+      # def call_long_method(object_reference, method_id, argument_types, *args) -> Integer
+      # def call_float_method(object_reference, method_id, argument_types, *args) -> Float
+      # def call_double_method(object_reference, method_id, argument_types, *args) -> Float
       # def call_static_void_method(class_reference, method_id, argument_types, *args) -> nil
-      # def call_static_object_method(class_reference, method_id, argument_types, *args) -> Reference
-      # def call_static_boolean_method(class_reference, method_id, argument_types, *args) -> TrueClass/FalseClass
-      # def call_static_byte_method(class_reference, method_id, argument_types, *args) -> Integer
-      # def call_static_char_method(class_reference, method_id, argument_types, *args) -> String
-      # def call_static_short_method(class_reference, method_id, argument_types, *args) -> Integer
-      # def call_static_int_method(class_reference, method_id, argument_types, *args) -> Integer
-      # def call_static_long_method(class_reference, method_id, argument_types, *args) -> Integer
-      # def call_static_float_method(class_reference, method_id, argument_types, *args) -> Float
-      # def call_static_double_method(class_reference, method_id, argument_types, *args) -> Float
+      # def call_static...
     end
 
     class Exception < StandardError; end

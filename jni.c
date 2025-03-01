@@ -385,6 +385,19 @@ static mrb_value jni_call_static_##type##_method_m(mrb_state *mrb, mrb_value sel
   CALL_METHOD_CLEANUP;\
   \
   return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
+}\
+\
+static mrb_value jni_call_##type##_method_m(mrb_state *mrb, mrb_value self) {\
+  CALL_METHOD_BEGINNING;\
+  \
+  ASSIGN_JNI_##type_upper_case##_TO_VARIABLE(\
+    jni_result,\
+    (*jni_env)->Call##type_pascal_case##MethodA(jni_env, object, method_id, jni_args)\
+  );\
+  \
+  CALL_METHOD_CLEANUP;\
+  \
+  return CONVERT_JNI_##type_upper_case##_TO_MRB_VALUE(jni_result);\
 }
 #include "define_for_jni_types.c.inc"
 #undef FOR_JNI_TYPE
@@ -423,6 +436,11 @@ void drb_register_c_extensions_with_api(mrb_state *mrb, struct drb_api_t *local_
                                refs.jni,\
                                "call_static_" #type "_method",\
                                jni_call_static_ ## type ## _method_m,\
+                               MRB_ARGS_REQ(3) | MRB_ARGS_REST());\
+  drb->mrb_define_class_method(mrb,\
+                               refs.jni,\
+                               "call_" #type "_method",\
+                               jni_call_ ## type ## _method_m,\
                                MRB_ARGS_REQ(3) | MRB_ARGS_REST());
 #include "define_for_jni_types.c.inc"
 #undef FOR_JNI_TYPE
